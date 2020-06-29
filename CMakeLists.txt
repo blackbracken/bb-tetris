@@ -4,4 +4,4 @@ project(bbtetris C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "-lncurses")
 
-add_executable(bbtetris main.c)
+add_executable(bbtetris main.c graphics.c graphics.h scene/title.c scene/title.h)

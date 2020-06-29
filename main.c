@@ -1,6 +1,9 @@
 #include <ncurses.h>
 
-void init_curses();
+#include "graphics.h"
+#include "scene/title.h"
+
+void start_marathon(int lines);
 
 int main() {
     initscr();
@@ -10,15 +13,8 @@ int main() {
     printw("Hello, World.");
     refresh();
 
-    getch();
+    disp_menu();
+
     endwin();
-
     return 0;
-}
-
-void init_curses() {
-    curs_set(0);
-    noecho();
-    start_color();
-    use_default_colors();
 }
