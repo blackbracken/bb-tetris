@@ -3,18 +3,21 @@
 #include "graphics.h"
 #include "scene/title.h"
 
-void start_marathon(int lines);
-
 int main() {
     initscr();
     init_curses();
-    getch(); // wait for alacritty.
 
-    printw("Hello, World.");
-    refresh();
+    while (1) {
+        MenuDestination dest = disp_menu();
 
-    disp_menu();
-
-    endwin();
-    return 0;
+        switch (dest) {
+            case DEST_MARATHON_40:
+                break;
+            case DEST_EXIT:
+                endwin();
+                return 0;
+            default:
+                break;
+        }
+    }
 }

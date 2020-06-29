@@ -9,13 +9,6 @@
 #define max(x, y) (x > y ? x : y)
 #define min(x, y) (x < y ? x : y)
 
-#define MENU_ITEM_MARATHON_40   0
-#define MENU_ITEM_MARATHON_150  1
-#define MENU_ITEM_RANKING       2
-#define MENU_ITEM_HELP          3
-#define MENU_ITEM_EXIT          4
-#define MENU_ITEM_AMOUNT        5
-
 const char *TEXT_TITLE = "BB_TETRIS";
 const char *TEXT_ITEM_MARATHON_40 = "MARATHON 40";
 const char *TEXT_ITEM_MARATHON_150 = "MARATHON 150";
@@ -23,13 +16,11 @@ const char *TEXT_ITEM_RANKING = "RANKING";
 const char *TEXT_ITEM_HELP = "HELP";
 const char *TEXT_ITEM_EXIT = "EXIT";
 
-int on_select_menu_item(int selected);
-
-int calc_center_x_of_text(char *text);
+int calc_center_x_of_text(const char *text);
 
 void put_selected_str(int y, int x, const char *text);
 
-void disp_menu() {
+MenuDestination disp_menu() {
     int selected = 0;
 
     while (true) {
@@ -60,22 +51,22 @@ void disp_menu() {
         attroff(A_BOLD);
 
         // draw items
-        for (int item_idx = 0; item_idx < MENU_ITEM_AMOUNT; item_idx++) {
+        for (int item_idx = 0; item_idx < sizeof(MenuDestination) + 1; item_idx++) {
             const char *item_text;
             switch (item_idx) {
-                case MENU_ITEM_MARATHON_40:
+                case DEST_MARATHON_40:
                     item_text = TEXT_ITEM_MARATHON_40;
                     break;
-                case MENU_ITEM_MARATHON_150:
+                case DEST_MARATHON_150:
                     item_text = TEXT_ITEM_MARATHON_150;
                     break;
-                case MENU_ITEM_RANKING:
+                case DEST_RANKING:
                     item_text = TEXT_ITEM_RANKING;
                     break;
-                case MENU_ITEM_HELP:
+                case DEST_HELP:
                     item_text = TEXT_ITEM_HELP;
                     break;
-                case MENU_ITEM_EXIT:
+                case DEST_EXIT:
                     item_text = TEXT_ITEM_EXIT;
                     break;
                 default:
@@ -100,20 +91,14 @@ void disp_menu() {
         switch (inputKey) {
             case ' ':
             case KEY_ENTER:
-                // whether to continue
-                if (on_select_menu_item(selected)) {
-                    selected = MENU_ITEM_MARATHON_40;
-                } else {
-                    return;
-                }
-                break;
+                return selected;
             case 'w':
             case KEY_UP:
-                selected = max(selected - 1, 0);
+                selected = max(selected - 1, DEST_MARATHON_40);
                 break;
             case 's':
             case KEY_DOWN:
-                selected = min(selected + 1, MENU_ITEM_AMOUNT - 1);
+                selected = min(selected + 1, DEST_EXIT);
                 break;
             default:
                 break;
@@ -121,7 +106,7 @@ void disp_menu() {
     }
 }
 
-int calc_center_x_of_text(char *text) {
+int calc_center_x_of_text(const char *text) {
     return WINDOW_WIDTH / 2 - strlen(text) / 2;
 }
 
@@ -131,24 +116,4 @@ void put_selected_str(int y, int x, const char *text) {
     addstr("> ");
     attroff(A_BOLD);
     addstr(text);
-}
-
-int on_select_menu_item(int selected) {
-    switch (selected) {
-        case MENU_ITEM_MARATHON_40:
-//            start_marathon(40);
-            break;
-        case MENU_ITEM_MARATHON_150:
-            break;
-        case MENU_ITEM_RANKING:
-            break;
-        case MENU_ITEM_HELP:
-            break;
-        case MENU_ITEM_EXIT:
-            return 0;
-        default:
-            break;
-    }
-
-    return 1;
 }
