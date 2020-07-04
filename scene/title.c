@@ -25,24 +25,7 @@ MenuDestination disp_menu() {
 
     while (true) {
         efface_window();
-        { // draw a frame
-            for (int y = 1; y < WINDOW_HEIGHT - 1; y++) {
-                move(y, 0);
-                addstr("[]");
-            }
-            for (int y = 1; y < WINDOW_HEIGHT - 1; y++) {
-                move(y, WINDOW_WIDTH - 2);
-                addstr("[]");
-            }
-            for (int x = 0; x < WINDOW_WIDTH; x++) {
-                move(0, x);
-                addch('=');
-            }
-            for (int x = 0; x < WINDOW_WIDTH; x++) {
-                move(WINDOW_HEIGHT - 1, x);
-                addch('=');
-            }
-        }
+        draw_frame();
 
         // draw a title
         move(8, calc_center_x_of_text(TEXT_TITLE));

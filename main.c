@@ -2,6 +2,7 @@
 
 #include "graphics.h"
 #include "scene/title.h"
+#include "scene/marathon.h"
 
 int main() {
     initscr();
@@ -12,6 +13,7 @@ int main() {
 
         switch (dest) {
             case DEST_MARATHON_40:
+                start_marathon(40);
                 break;
             case DEST_EXIT:
                 endwin();
