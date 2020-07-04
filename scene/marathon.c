@@ -3,7 +3,9 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
+
 #include "../graphics.h"
+#include "../utils.h"
 
 typedef enum {
     RED,
@@ -131,6 +133,31 @@ _Noreturn void start_marathon(int lines) {
         }
 
         refresh();
+
+        switch (inputKey) {
+            case 'a':
+            case KEY_LEFT:
+                board.falling_mino_x = max(board.falling_mino_x - 1, 0);
+                break;
+            case 'd':
+            case KEY_RIGHT:
+                board.falling_mino_x = min(board.falling_mino_x + 1, 10);
+                break;
+            case 'w':
+            case KEY_UP:
+                board.falling_mino_y = 20;
+                break;
+            case 's':
+            case KEY_DOWN:
+                board.falling_mino_y += 1;
+                break;
+            case 'k':
+                board.falling_mino_spin = (board.falling_mino_spin + 1) % 4;
+                break;
+            case 'j':
+                board.falling_mino_spin = (board.falling_mino_spin + 3) % 4;
+                break;
+        }
 
         if (++frame % (FPS + 1) == 0) frame = 1;
 

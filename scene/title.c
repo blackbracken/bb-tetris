@@ -4,10 +4,7 @@
 #include <ncurses.h>
 
 #include "../graphics.h"
-
-// TODO: separate as utilities
-#define max(x, y) (x > y ? x : y)
-#define min(x, y) (x < y ? x : y)
+#include "../utils.h"
 
 const char *TEXT_TITLE = "BB_TETRIS";
 const char *TEXT_ITEM_MARATHON_40 = "MARATHON 40";
