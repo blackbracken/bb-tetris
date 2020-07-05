@@ -21,7 +21,7 @@ void init_curses() {
     init_pair(COLOR_ID_MINO_T, -1, COLOR_MAGENTA);
 }
 
-void draw_frame() {
+void draw_window_frame() {
     for (int y = 1; y < WINDOW_HEIGHT - 1; y++) {
         move(y, 0);
         addstr("[]");

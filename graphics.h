@@ -10,7 +10,7 @@ extern const short COLOR_ID_MINO_T;
 
 void init_curses();
 
-void draw_frame();
+void draw_window_frame();
 
 void efface_window();
 
