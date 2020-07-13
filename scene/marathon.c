@@ -5,129 +5,14 @@
 #include <time.h>
 
 #include "../graphics.h"
-
-#define FIELD_WIDTH 10
-#define FIELD_HEIGHT 21
-
-typedef enum {
-    RED,
-    ORANGE,
-    YELLOW,
-    GREEN,
-    CYAN,
-    BLUE,
-    PURPLE,
-    AIR
-} MinoBlock;
-
-typedef struct {
-    const int center_x, center_y;
-    const int shape[4][4][4];
-    const int size;
-    const int spin_offsets[4][5][2];
-} Tetrimino;
-
-typedef struct {
-    MinoBlock field[FIELD_HEIGHT][FIELD_WIDTH];
-    Tetrimino *dropping_mino;
-    int dropping_mino_x, dropping_mino_y;
-    int dropping_mino_spin;
-    int dropping_mass_per_second;
-} Board;
+#include "../Game.h"
 
 const int FPS = 30;
 const int DELAY_MILLI_PER_FRAME = 1000 / FPS;
 
-// TODO: write spinning offsets
-Tetrimino MINO_T = {
-        .center_x =  1,
-        .center_y =  1,
-        .shape = {
-                {
-                        {0, 1, 0},
-                        {1, 1, 1},
-                        {0, 0, 0},
-                },
-                {
-                        {0, 1, 0},
-                        {0, 1, 1},
-                        {0, 1, 0},
-                },
-                {
-                        {0, 0, 0},
-                        {1, 1, 1},
-                        {0, 1, 0},
-                },
-                {
-                        {0, 1, 0},
-                        {1, 1, 0},
-                        {0, 1, 0},
-                },
-        },
-        .size = 3,
-};
-
 void draw_board_frame(int field_orig_y, int field_orig_x);
 
 void erase_background_of_field(int orig_y, int orig_x);
-
-int can_move(Board *board, void (*predicate)(Board *));
-
-void move_left(Board *board);
-
-void move_right(Board *board);
-
-void drop_softly(Board *board);
-
-void drop_hardly(Board *board);
-
-void spin_left(Board *board);
-
-void spin_right(Board *board);
-
-int can_move(Board *board, void (*predicate)(Board *)) {
-    Board assumed = *board;
-    predicate(&assumed);
-
-    for (int j = 0; j < assumed.dropping_mino->size; j++) {
-        for (int i = 0; i < assumed.dropping_mino->size; i++) {
-            if (assumed.dropping_mino->shape[assumed.dropping_mino_spin][j][i] == 0) {
-                continue;
-            }
-            int dest_x = assumed.dropping_mino_x + (i - assumed.dropping_mino->center_x);
-            int dest_y = assumed.dropping_mino_y + (j - assumed.dropping_mino->center_y);
-
-            if (dest_x < 0 || dest_y < 0
-                || FIELD_WIDTH <= dest_x || FIELD_HEIGHT <= dest_y
-                || assumed.field[dest_y][dest_x] != 0) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-void move_left(Board *board) { board->dropping_mino_x--; }
-
-void move_right(Board *board) { board->dropping_mino_x++; }
-
-void drop_softly(Board *board) {
-    board->dropping_mino_y++;
-}
-
-void drop_hardly(Board *board) {
-    while (can_move(board, drop_softly)) drop_softly(board);
-}
-
-void spin_right(Board *board) {
-    board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4;
-}
-
-void spin_left(Board *board) {
-    board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4;
-}
-
 
 _Noreturn void start_marathon(int lines) {
     int field_orig_x = WINDOW_WIDTH / 2 - 12;
