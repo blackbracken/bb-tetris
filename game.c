@@ -1,6 +1,6 @@
 #include "game.h"
 
-const int MAX_BLOCK_AMOUNT_IN_MINO = 4 * 4;
+const int BLOCK_AMOUNT_IN_MINO = 4;
 
 typedef struct {
     int x, y;
@@ -8,11 +8,13 @@ typedef struct {
 
 int calc_dropping_mino_locations_on_field(Board *board, Location *locations);
 
+bool will_overlap_mass_between_fields_and_dropping_minos(Board *board);
+
 bool can_move(const Board *board, void (*predicate)(Board *)) {
     Board assumed = *board;
     predicate(&assumed);
 
-    Location locations[MAX_BLOCK_AMOUNT_IN_MINO];
+    Location locations[BLOCK_AMOUNT_IN_MINO];
     // TODO: change amount to 4 because it must be 4.
     int mino_block_amount = calc_dropping_mino_locations_on_field(&assumed, locations);
     for (int i = 0; i < mino_block_amount; i++) {
@@ -37,31 +39,44 @@ void drop_softly(Board *board) { board->dropping_mino_y++; }
 
 void drop_hardly(Board *board) {
     while (can_move(board, drop_softly)) drop_softly(board);
-    put_and_spawn(board);
+    put_and_try_next(board);
 }
 
 void spin_right(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4; }
 
 void spin_left(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4; }
 
-void put_and_spawn(Board *board) {
-    if (can_move(board, drop_softly)) return;
+bool put_and_try_next(Board *board) {
+    if (can_move(board, drop_softly)) return true;
 
-    Location locations[MAX_BLOCK_AMOUNT_IN_MINO];
-    int mino_block_amount = calc_dropping_mino_locations_on_field(board, locations);
-    for (int i = 0; i < mino_block_amount; i++) {
+    Location locations[BLOCK_AMOUNT_IN_MINO];
+
+    calc_dropping_mino_locations_on_field(board, locations);
+    for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;
         int y_on_field = locations[i].y;
 
-        board->field[y_on_field][x_on_field] = 1;
+        if (y_on_field < FIELD_HEIGHT) {
+            board->field[y_on_field][x_on_field] = 1;
+        } else {
+            return false;
+        }
     }
 
-    { // TODO: rewrite
-        board->dropping_mino = &MINO_T;
-        board->dropping_mino_x = 4;
-        board->dropping_mino_y = 1;
-        board->dropping_mino_spin = 0;
+    // spawn new mino
+    board->dropping_mino = &MINO_T; // TODO: pick randomly
+    board->dropping_mino_x = 4;
+    board->dropping_mino_y = 1;
+    board->dropping_mino_spin = 0;
+
+    if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
+        board->dropping_mino_y = 0;
     }
+    if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
+        return false;
+    }
+
+    return true;
 }
 
 int calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
@@ -82,6 +97,20 @@ int calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
     }
 
     return amount;
+}
+
+bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
+    Location locations[BLOCK_AMOUNT_IN_MINO];
+    for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
+        int x_on_field = locations[i].x;
+        int y_on_field = locations[i].y;
+
+        if (board->field[y_on_field][x_on_field] != 0) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // TODO: write spinning offsets

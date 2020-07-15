@@ -49,6 +49,6 @@ void spin_left(Board *board);
 
 void spin_right(Board *board);
 
-void put_and_spawn(Board *board);
+bool put_and_try_next(Board *board);
 
 #endif

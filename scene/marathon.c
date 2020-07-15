@@ -36,7 +36,7 @@ _Noreturn void start_marathon(int lines) {
 
     int frame = 1;
     struct timespec timespec;
-    while (1) {
+    while (true) {
         timespec_get(&timespec, TIME_UTC);
         long milli_start = timespec.tv_nsec / 1000 / 1000;
 
@@ -46,7 +46,7 @@ _Noreturn void start_marathon(int lines) {
 
         { // rendering routine
             if (frame % (FPS / board.dropping_mass_per_second) == 0) {
-                // TODO: put_and_spawn mino
+                // TODO: put mino
                 if (can_move(&board, drop_softly)) drop_softly(&board);
             }
 
