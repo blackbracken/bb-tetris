@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "../graphics.h"
-#include "../Game.h"
+#include "../game.h"
 
 const int FPS = 30;
 const int DELAY_MILLI_PER_FRAME = 1000 / FPS;
@@ -17,7 +17,8 @@ void erase_background_of_field(int orig_y, int orig_x);
 _Noreturn void start_marathon(int lines) {
     int field_orig_x = WINDOW_WIDTH / 2 - 12;
     int field_orig_y = 10;
-    { // render a view
+
+    { // prepare view
         efface_window();
         draw_window_frame();
         draw_board_frame(field_orig_y, field_orig_x);
@@ -43,7 +44,7 @@ _Noreturn void start_marathon(int lines) {
 
         int inputKey = getch();
 
-        { // game routine
+        { // rendering routine
             if (frame % (FPS / board.dropping_mass_per_second) == 0) {
                 // TODO: put mino
                 if (can_move(&board, drop_softly)) drop_softly(&board);
@@ -51,7 +52,7 @@ _Noreturn void start_marathon(int lines) {
 
             erase_background_of_field(field_orig_y, field_orig_x);
 
-            // render a board - unused yet
+            // render a board
             for (int j = 0; j < FIELD_HEIGHT; j++) {
                 for (int i = 0; i < FIELD_WIDTH; i++) {
                     if (board.field[j][i]) {
@@ -111,6 +112,8 @@ _Noreturn void start_marathon(int lines) {
                 if (can_move(&board, spin_left)) {
                     spin_left(&board);
                 }
+                break;
+            default:
                 break;
         }
 

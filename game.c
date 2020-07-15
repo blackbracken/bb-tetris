@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "game.h"
 
 const int MAX_BLOCK_AMOUNT_IN_MINO = 4 * 4;
 
