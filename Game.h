@@ -47,4 +47,6 @@ void spin_left(Board *board);
 
 void spin_right(Board *board);
 
+void put(Board *board);
+
 #endif
