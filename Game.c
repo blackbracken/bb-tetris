@@ -8,23 +8,20 @@ typedef struct {
 
 int calc_dropping_mino_locations_on_field(Board *board, Location *locations);
 
-int can_move(Board *board, void (*predicate)(Board *)) {
+int can_move(const Board *board, void (*predicate)(Board *)) {
     Board assumed = *board;
     predicate(&assumed);
 
-    for (int j = 0; j < assumed.dropping_mino->size; j++) {
-        for (int i = 0; i < assumed.dropping_mino->size; i++) {
-            if (assumed.dropping_mino->shape[assumed.dropping_mino_spin][j][i] == 0) {
-                continue;
-            }
-            int dest_x = assumed.dropping_mino_x + (i - assumed.dropping_mino->center_x);
-            int dest_y = assumed.dropping_mino_y + (j - assumed.dropping_mino->center_y);
+    Location locations[MAX_BLOCK_AMOUNT_IN_MINO];
+    int mino_block_amount = calc_dropping_mino_locations_on_field(&assumed, locations);
+    for (int i = 0; i < mino_block_amount; i++) {
+        int x_on_field = locations[i].x;
+        int y_on_field = locations[i].y;
 
-            if (dest_x < 0 || dest_y < 0
-                || FIELD_WIDTH <= dest_x || FIELD_HEIGHT <= dest_y
-                || assumed.field[dest_y][dest_x] != 0) {
-                return 0;
-            }
+        if (x_on_field < 0 || y_on_field < 0
+            || FIELD_WIDTH <= x_on_field || FIELD_HEIGHT <= y_on_field
+            || assumed.field[y_on_field][x_on_field] != 0) {
+            return 0;
         }
     }
 

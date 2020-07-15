@@ -33,7 +33,7 @@ typedef struct {
 } Board;
 
 // TODO: rename to better
-int can_move(Board *board, void (*predicate)(Board *));
+int can_move(const Board *board, void (*predicate)(Board *));
 
 void move_left(Board *board);
 
