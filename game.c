@@ -8,11 +8,12 @@ typedef struct {
 
 int calc_dropping_mino_locations_on_field(Board *board, Location *locations);
 
-int can_move(const Board *board, void (*predicate)(Board *)) {
+bool can_move(const Board *board, void (*predicate)(Board *)) {
     Board assumed = *board;
     predicate(&assumed);
 
     Location locations[MAX_BLOCK_AMOUNT_IN_MINO];
+    // TODO: change amount to 4 because it must be 4.
     int mino_block_amount = calc_dropping_mino_locations_on_field(&assumed, locations);
     for (int i = 0; i < mino_block_amount; i++) {
         int x_on_field = locations[i].x;
@@ -21,11 +22,11 @@ int can_move(const Board *board, void (*predicate)(Board *)) {
         if (x_on_field < 0 || y_on_field < 0
             || FIELD_WIDTH <= x_on_field || FIELD_HEIGHT <= y_on_field
             || assumed.field[y_on_field][x_on_field] != 0) {
-            return 0;
+            return false;
         }
     }
 
-    return 1;
+    return true;
 }
 
 void move_left(Board *board) { board->dropping_mino_x--; }
@@ -36,14 +37,14 @@ void drop_softly(Board *board) { board->dropping_mino_y++; }
 
 void drop_hardly(Board *board) {
     while (can_move(board, drop_softly)) drop_softly(board);
-    put(board);
+    put_and_spawn(board);
 }
 
 void spin_right(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4; }
 
 void spin_left(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4; }
 
-void put(Board *board) {
+void put_and_spawn(Board *board) {
     if (can_move(board, drop_softly)) return;
 
     Location locations[MAX_BLOCK_AMOUNT_IN_MINO];

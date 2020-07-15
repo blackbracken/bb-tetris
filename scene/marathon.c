@@ -46,7 +46,7 @@ _Noreturn void start_marathon(int lines) {
 
         { // rendering routine
             if (frame % (FPS / board.dropping_mass_per_second) == 0) {
-                // TODO: put mino
+                // TODO: put_and_spawn mino
                 if (can_move(&board, drop_softly)) drop_softly(&board);
             }
 
@@ -154,7 +154,7 @@ void draw_board_frame(int field_orig_y, int field_orig_x) {
 void erase_background_of_field(int orig_y, int orig_x) {
     for (int j = 0; j < FIELD_HEIGHT; j++) {
         for (int i = 0; i < FIELD_WIDTH; i++) {
-            int should_be_period = i % 2 == 0 && j % 2 == 0;
+            bool should_be_period = i % 2 == 0 && j % 2 == 0;
 
             move(orig_y + j, orig_x + i);
             attrset(COLOR_PAIR(COLOR_ID_FIELD));

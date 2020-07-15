@@ -4,6 +4,8 @@
 #define FIELD_WIDTH 10
 #define FIELD_HEIGHT 21
 
+#include <stdbool.h>
+
 typedef enum {
     RED,
     ORANGE,
@@ -33,7 +35,7 @@ typedef struct {
 } Board;
 
 // TODO: rename to better
-int can_move(const Board *board, void (*predicate)(Board *));
+bool can_move(const Board *board, void (*predicate)(Board *));
 
 void move_left(Board *board);
 
@@ -47,6 +49,6 @@ void spin_left(Board *board);
 
 void spin_right(Board *board);
 
-void put(Board *board);
+void put_and_spawn(Board *board);
 
 #endif

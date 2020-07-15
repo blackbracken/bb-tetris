@@ -8,7 +8,7 @@ int main() {
     initscr();
     init_curses();
 
-    while (1) {
+    while (true) {
         MenuDestination dest = disp_menu();
 
         switch (dest) {

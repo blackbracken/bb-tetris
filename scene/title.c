@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <ncurses.h>
+#include <stdbool.h>
 
 #include "../graphics.h"
 #include "../utils.h"
@@ -90,7 +91,7 @@ int calc_center_x_of_text(const char *text) {
     return WINDOW_WIDTH / 2 - strlen(text) / 2;
 }
 
-void put_selected_str(int y, int x, const char *text) {
+void put_selected_str(int y, int x, const char *const text) {
     move(y, x - 2);
     attron(A_BOLD);
     addstr("> ");
