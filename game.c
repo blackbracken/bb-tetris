@@ -15,9 +15,8 @@ bool can_move(const Board *board, void (*predicate)(Board *)) {
     predicate(&assumed);
 
     Location locations[BLOCK_AMOUNT_IN_MINO];
-    // TODO: change amount to 4 because it must be 4.
-    int mino_block_amount = calc_dropping_mino_locations_on_field(&assumed, locations);
-    for (int i = 0; i < mino_block_amount; i++) {
+    calc_dropping_mino_locations_on_field(&assumed, locations);
+    for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;
         int y_on_field = locations[i].y;
 
@@ -66,12 +65,14 @@ bool put_and_try_next(Board *board) {
     // spawn new mino
     board->dropping_mino = &MINO_T; // TODO: pick randomly
     board->dropping_mino_x = 4;
-    board->dropping_mino_y = 1;
+    board->dropping_mino_y = 2;
     board->dropping_mino_spin = 0;
 
+    // shift to upper if overlapped
     if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
-        board->dropping_mino_y = 0;
+        board->dropping_mino_y = 1;
     }
+    // it can't continue if overlapped yet
     if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
         return false;
     }
@@ -101,6 +102,7 @@ int calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
 
 bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
     Location locations[BLOCK_AMOUNT_IN_MINO];
+    calc_dropping_mino_locations_on_field(board, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;
         int y_on_field = locations[i].y;
