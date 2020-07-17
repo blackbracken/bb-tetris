@@ -5,8 +5,13 @@
 #include "scene/marathon.h"
 
 int main() {
-    initscr();
+    WINDOW *window = initscr();
     init_curses();
+
+    if (wresize(window, WINDOW_HEIGHT, WINDOW_WIDTH) == ERR) {
+        fputs("A window size must be equal to or wider than 80x40.\n", stderr);
+        return 1;
+    }
 
     while (true) {
         MenuDestination dest = disp_menu();
