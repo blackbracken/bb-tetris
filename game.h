@@ -27,28 +27,35 @@ typedef struct {
 extern const Tetrimino MINO_T;
 
 typedef struct {
+    int score;
+    int removed_lines;
+} Result;
+
+typedef struct {
+    int frame;
     MinoBlock field[FIELD_HEIGHT][FIELD_WIDTH];
     Tetrimino const *dropping_mino;
     int dropping_mino_x, dropping_mino_y;
     int dropping_mino_spin;
     int dropping_mass_per_second;
+    int lockdown_count;
+    Result *result;
 } Board;
 
-// TODO: rename to better
-bool can_move(const Board *board, void (*predicate)(Board *));
+void gen_board(Board *board);
 
-void move_left(Board *board);
+Result *render(Board *board, int frame, int fps);
 
-void move_right(Board *board);
+void try_spin_left(Board *board);
+
+void try_spin_right(Board *board);
+
+void try_move_left(Board *board);
+
+void try_move_right(Board *board);
 
 void drop_softly(Board *board);
 
 void drop_hardly(Board *board);
-
-void spin_left(Board *board);
-
-void spin_right(Board *board);
-
-bool put_and_try_next(Board *board);
 
 #endif

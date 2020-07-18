@@ -25,14 +25,8 @@ _Noreturn void start_marathon(int lines) {
         erase_background_of_field(field_orig_y, field_orig_x);
     }
 
-    Board board = {
-            .field = {0},
-            .dropping_mino = &MINO_T,
-            .dropping_mino_x = 4,
-            .dropping_mino_y = 2,
-            .dropping_mino_spin = 0,
-            .dropping_mass_per_second = 1,
-    };
+    Board board;
+    gen_board(&board);
 
     int frame = 1;
     struct timespec timespec;
@@ -42,17 +36,12 @@ _Noreturn void start_marathon(int lines) {
 
         timeout(DELAY_MILLI_PER_FRAME);
 
-        int inputKey = getch();
+        render(&board, frame, FPS);
 
-        { // rendering routine
-            if (frame % (FPS / board.dropping_mass_per_second) == 0) {
-                // TODO: put mino
-                if (can_move(&board, drop_softly)) drop_softly(&board);
-            }
-
+        { // draw view
             erase_background_of_field(field_orig_y, field_orig_x);
 
-            // render a board
+            // draw a board
             for (int j = 0; j < FIELD_HEIGHT; j++) {
                 for (int i = 0; i < FIELD_WIDTH; i++) {
                     if (board.field[j][i]) {
@@ -63,7 +52,7 @@ _Noreturn void start_marathon(int lines) {
                 }
             }
 
-            // render a dropping mino
+            // draw a dropping mino
             for (int j = 0; j < board.dropping_mino->size; j++) {
                 for (int i = 0; i < board.dropping_mino->size; i++) {
                     if (board.dropping_mino->shape[board.dropping_mino_spin][j][i]) {
@@ -76,22 +65,19 @@ _Noreturn void start_marathon(int lines) {
                     }
                 }
             }
+
+            refresh();
         }
 
-        refresh();
-
-        switch (inputKey) {
+        int input_key = getch();
+        switch (input_key) {
             case 'a':
             case KEY_LEFT:
-                if (can_move(&board, move_left)) {
-                    move_left(&board);
-                }
+                try_move_left(&board);
                 break;
             case 'd':
             case KEY_RIGHT:
-                if (can_move(&board, move_right)) {
-                    move_right(&board);
-                }
+                try_move_right(&board);
                 break;
             case 'w':
             case KEY_UP:
@@ -99,19 +85,13 @@ _Noreturn void start_marathon(int lines) {
                 break;
             case 's':
             case KEY_DOWN:
-                if (can_move(&board, drop_softly)) {
-                    drop_softly(&board);
-                }
+                drop_softly(&board);
                 break;
             case 'k':
-                if (can_move(&board, spin_right)) {
-                    spin_right(&board);
-                }
+                try_spin_right(&board);
                 break;
             case 'j':
-                if (can_move(&board, spin_left)) {
-                    spin_left(&board);
-                }
+                try_spin_left(&board);
                 break;
             default:
                 break;
@@ -125,7 +105,7 @@ _Noreturn void start_marathon(int lines) {
 
         // stabilize fps
         long milli_delta = DELAY_MILLI_PER_FRAME - (milli_finish - milli_start);
-        if (inputKey != ERR && milli_delta > 0) {
+        if (input_key != ERR && milli_delta > 0) {
             usleep(milli_delta * 1000);
         }
     }

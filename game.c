@@ -1,16 +1,112 @@
 #include "game.h"
 
+#include <string.h>
+
 const int BLOCK_AMOUNT_IN_MINO = 4;
 
 typedef struct {
     int x, y;
 } Location;
 
-int calc_dropping_mino_locations_on_field(Board *board, Location *locations);
+void fall_mino_once(Board *board);
+
+bool put_and_try_next(Board *board);
+
+bool can_move_as(const Board *board, void (*predicate)(Board *));
+
+void spawn_mino(Board *board);
+
+void calc_dropping_mino_locations_on_field(Board *board, Location *locations);
 
 bool will_overlap_mass_between_fields_and_dropping_minos(Board *board);
 
-bool can_move(const Board *board, void (*predicate)(Board *)) {
+void gen_board(Board *board) {
+    memset(board->field, 0, sizeof(board->field[0][0]) * FIELD_WIDTH * FIELD_HEIGHT);
+    spawn_mino(board);
+    board->dropping_mass_per_second = 1;
+    board->lockdown_count = 0;
+    board->result = NULL;
+}
+
+Result *render(Board *board, int frame, int fps) {
+    if (!can_move_as(board, fall_mino_once)) {
+        board->lockdown_count++;
+    }
+
+    if (board->lockdown_count >= fps / 2) {
+        board->lockdown_count = 0;
+
+        if (!put_and_try_next(board)) {
+            Result *r = board->result;
+            r->score = 1000;
+            r->removed_lines = 10;
+
+            return r;
+        }
+    }
+
+    if (frame % (fps / board->dropping_mass_per_second) == 0) {
+        if (can_move_as(board, fall_mino_once)) {
+            fall_mino_once(board);
+        }
+    }
+
+    return NULL;
+}
+
+void move_left(Board *board) { board->dropping_mino_x--; }
+
+void try_move_left(Board *board) {
+    if (can_move_as(board, move_left)) {
+        move_left(board);
+        board->lockdown_count = 0;
+    }
+}
+
+void move_right(Board *board) { board->dropping_mino_x++; }
+
+void try_move_right(Board *board) {
+    if (can_move_as(board, move_right)) {
+        move_right(board);
+        board->lockdown_count = 0;
+    }
+}
+
+void drop_softly(Board *board) {
+    if (can_move_as(board, fall_mino_once)) {
+        fall_mino_once(board);
+    }
+}
+
+void drop_hardly(Board *board) {
+    while (can_move_as(board, fall_mino_once)) drop_softly(board);
+
+    board->lockdown_count = 400;
+}
+
+void spin_right(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4; }
+
+void try_spin_right(Board *board) {
+    if (can_move_as(board, spin_right)) {
+        spin_right(board);
+        board->lockdown_count = 50;
+    }
+}
+
+void spin_left(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4; }
+
+void try_spin_left(Board *board) {
+    if (can_move_as(board, spin_left)) {
+        spin_left(board);
+        board->lockdown_count = 0;
+    }
+}
+
+void fall_mino_once(Board *board) {
+    board->dropping_mino_y++;
+}
+
+bool can_move_as(const Board *board, void (*predicate)(Board *)) {
     Board assumed = *board;
     predicate(&assumed);
 
@@ -30,23 +126,9 @@ bool can_move(const Board *board, void (*predicate)(Board *)) {
     return true;
 }
 
-void move_left(Board *board) { board->dropping_mino_x--; }
-
-void move_right(Board *board) { board->dropping_mino_x++; }
-
-void drop_softly(Board *board) { board->dropping_mino_y++; }
-
-void drop_hardly(Board *board) {
-    while (can_move(board, drop_softly)) drop_softly(board);
-    put_and_try_next(board);
-}
-
-void spin_right(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4; }
-
-void spin_left(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4; }
 
 bool put_and_try_next(Board *board) {
-    if (can_move(board, drop_softly)) return true;
+    if (can_move_as(board, fall_mino_once)) return true;
 
     Location locations[BLOCK_AMOUNT_IN_MINO];
 
@@ -62,11 +144,7 @@ bool put_and_try_next(Board *board) {
         }
     }
 
-    // spawn new mino
-    board->dropping_mino = &MINO_T; // TODO: pick randomly
-    board->dropping_mino_x = 4;
-    board->dropping_mino_y = 2;
-    board->dropping_mino_spin = 0;
+    spawn_mino(board);
 
     // shift to upper if overlapped
     if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
@@ -80,7 +158,14 @@ bool put_and_try_next(Board *board) {
     return true;
 }
 
-int calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
+void spawn_mino(Board *board) {
+    board->dropping_mino = &MINO_T; // TODO: pick randomly
+    board->dropping_mino_x = 4;
+    board->dropping_mino_y = 2;
+    board->dropping_mino_spin = 0;
+}
+
+void calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
     int amount = 0;
 
     for (int j = 0; j < board->dropping_mino->size; j++) {
@@ -96,8 +181,6 @@ int calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
             locations[amount++] = loc_on_field;
         }
     }
-
-    return amount;
 }
 
 bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
