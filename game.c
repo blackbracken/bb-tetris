@@ -3,16 +3,13 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define LENGTH_MINO_SEED 7 * 2
+
 const int BLOCK_AMOUNT_IN_MINO = 4;
 
 typedef struct {
     int x, y;
 } Location;
-
-typedef struct {
-    MinoBlock const blocks[7 * 2];
-    int order;
-} MinoSeed;
 
 void fall_mino_once(Board *board);
 
@@ -34,9 +31,11 @@ void gen_shuffled_minos(Tetrimino const *shuffled[7]);
 
 void gen_board(Board *board) {
     memset(board->field, 0, sizeof(board->field[0][0]) * FIELD_WIDTH * FIELD_HEIGHT);
-    spawn_mino(board);
     board->dropping_mass_per_second = 1;
     board->lockdown_count = 0;
+    gen_mino_seed(&board->seed);
+
+    spawn_mino(board);
 }
 
 Result render(Board *board, int frame, int fps) {
@@ -102,7 +101,7 @@ void spin_right(Board *board) { board->dropping_mino_spin = (board->dropping_min
 void try_spin_right(Board *board) {
     if (can_move_as(board, spin_right)) {
         spin_right(board);
-        board->lockdown_count = 50;
+        board->lockdown_count = 0;
     }
 }
 
@@ -172,7 +171,7 @@ bool put_and_try_next(Board *board) {
 }
 
 void spawn_mino(Board *board) {
-    board->dropping_mino = &MINO_T; // TODO: pick randomly
+    board->dropping_mino = pop_mino(&board->seed);
     board->dropping_mino_x = 4;
     board->dropping_mino_y = 2;
     board->dropping_mino_spin = 0;
@@ -212,17 +211,30 @@ bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
 }
 
 void gen_mino_seed(MinoSeed *seed) {
-    // TODO: put mino randomly
     seed->order = 0;
-    gen_shuffled_minos((const Tetrimino **) seed->blocks[0]);
+    gen_shuffled_minos(&seed->blocks[0]);
+    gen_shuffled_minos(&seed->blocks[LENGTH_MINO_SEED / 2]);
 }
 
 Tetrimino const *pop_mino(MinoSeed *seed) {
+    switch (seed->order) {
+        case LENGTH_MINO_SEED - 1:
+        case LENGTH_MINO_SEED / 2 - 1:
+            gen_shuffled_minos(&seed->blocks[(seed->order + 1) % LENGTH_MINO_SEED]);
+            break;
+        default:
+            break;
+    }
 
+    Tetrimino const *mino = seed->blocks[seed->order];
+
+    seed->order++;
+    seed->order %= LENGTH_MINO_SEED;
+
+    return mino;
 }
 
 void gen_shuffled_minos(Tetrimino const *shuffled[7]) {
-    // TODO: put various minos
     for (int i = 0; i < 7; i++) shuffled[i] = &MINO_T;
 
     for (int left = 0; left < 7; left++) {

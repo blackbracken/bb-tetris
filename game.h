@@ -33,6 +33,12 @@ typedef struct {
 } Result;
 
 typedef struct {
+    Tetrimino const *blocks[7 * 2];
+    int order;
+} MinoSeed;
+
+
+typedef struct {
     int frame;
     MinoBlock field[FIELD_HEIGHT][FIELD_WIDTH];
     Tetrimino const *dropping_mino;
@@ -40,6 +46,7 @@ typedef struct {
     int dropping_mino_spin;
     int dropping_mass_per_second;
     int lockdown_count;
+    MinoSeed seed;
 } Board;
 
 void gen_board(Board *board);
