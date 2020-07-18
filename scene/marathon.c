@@ -14,7 +14,7 @@ void draw_board_frame(int field_orig_y, int field_orig_x);
 
 void erase_background_of_field(int orig_y, int orig_x);
 
-_Noreturn void start_marathon(int lines) {
+void start_marathon(int lines) {
     int field_orig_x = WINDOW_WIDTH / 2 - 12;
     int field_orig_y = 10;
 
@@ -36,7 +36,10 @@ _Noreturn void start_marathon(int lines) {
 
         timeout(DELAY_MILLI_PER_FRAME);
 
-        render(&board, frame, FPS);
+        Result result = render(&board, frame, FPS);
+        if (result.is_available) {
+            return;
+        }
 
         { // draw view
             erase_background_of_field(field_orig_y, field_orig_x);

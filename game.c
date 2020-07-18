@@ -1,12 +1,18 @@
 #include "game.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 const int BLOCK_AMOUNT_IN_MINO = 4;
 
 typedef struct {
     int x, y;
 } Location;
+
+typedef struct {
+    MinoBlock const blocks[7 * 2];
+    int order;
+} MinoSeed;
 
 void fall_mino_once(Board *board);
 
@@ -20,15 +26,20 @@ void calc_dropping_mino_locations_on_field(Board *board, Location *locations);
 
 bool will_overlap_mass_between_fields_and_dropping_minos(Board *board);
 
+void gen_mino_seed(MinoSeed *seed);
+
+Tetrimino const *pop_mino(MinoSeed *seed);
+
+void gen_shuffled_minos(Tetrimino const *shuffled[7]);
+
 void gen_board(Board *board) {
     memset(board->field, 0, sizeof(board->field[0][0]) * FIELD_WIDTH * FIELD_HEIGHT);
     spawn_mino(board);
     board->dropping_mass_per_second = 1;
     board->lockdown_count = 0;
-    board->result = NULL;
 }
 
-Result *render(Board *board, int frame, int fps) {
+Result render(Board *board, int frame, int fps) {
     if (!can_move_as(board, fall_mino_once)) {
         board->lockdown_count++;
     }
@@ -37,11 +48,12 @@ Result *render(Board *board, int frame, int fps) {
         board->lockdown_count = 0;
 
         if (!put_and_try_next(board)) {
-            Result *r = board->result;
-            r->score = 1000;
-            r->removed_lines = 10;
+            Result result = {};
+            result.is_available = true;
+            result.score = 1000;
+            result.removed_lines = 10;
 
-            return r;
+            return result;
         }
     }
 
@@ -51,7 +63,8 @@ Result *render(Board *board, int frame, int fps) {
         }
     }
 
-    return NULL;
+    Result unavailable = {.is_available = false};
+    return unavailable;
 }
 
 void move_left(Board *board) { board->dropping_mino_x--; }
@@ -196,6 +209,28 @@ bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
     }
 
     return false;
+}
+
+void gen_mino_seed(MinoSeed *seed) {
+    // TODO: put mino randomly
+    seed->order = 0;
+    gen_shuffled_minos((const Tetrimino **) seed->blocks[0]);
+}
+
+Tetrimino const *pop_mino(MinoSeed *seed) {
+
+}
+
+void gen_shuffled_minos(Tetrimino const *shuffled[7]) {
+    // TODO: put various minos
+    for (int i = 0; i < 7; i++) shuffled[i] = &MINO_T;
+
+    for (int left = 0; left < 7; left++) {
+        int right = rand() % 7;
+        Tetrimino const *temp = shuffled[right];
+        shuffled[right] = shuffled[left];
+        shuffled[left] = temp;
+    }
 }
 
 // TODO: write spinning offsets

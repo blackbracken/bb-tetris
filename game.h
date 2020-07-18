@@ -27,6 +27,7 @@ typedef struct {
 extern const Tetrimino MINO_T;
 
 typedef struct {
+    bool is_available;
     int score;
     int removed_lines;
 } Result;
@@ -39,12 +40,11 @@ typedef struct {
     int dropping_mino_spin;
     int dropping_mass_per_second;
     int lockdown_count;
-    Result *result;
 } Board;
 
 void gen_board(Board *board);
 
-Result *render(Board *board, int frame, int fps);
+Result render(Board *board, int frame, int fps);
 
 void try_spin_left(Board *board);
 
