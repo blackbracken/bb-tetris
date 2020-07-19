@@ -9,10 +9,9 @@
 #define NEXT_AMOUNT 5
 
 typedef struct {
-    bool is_available;
     int score;
     int total_removed_lines;
-} Result;
+} Statistics;
 
 typedef struct {
     Tetrimino const *blocks[7 * 2];
@@ -31,11 +30,12 @@ typedef struct {
     int dropping_mass_per_second;
     int lockdown_count;
     MinoSeed seed;
+    Statistics statistics;
 } Board;
 
 void gen_board(Board *board);
 
-Result render(Board *board, int frame, int fps);
+bool render(Board *board, int frame, int fps);
 
 void try_spin_left(Board *board);
 

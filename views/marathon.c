@@ -42,8 +42,7 @@ void start_marathon(int lines) {
 
         timeout(DELAY_MILLI_PER_FRAME);
 
-        Result result = render(&board, frame, FPS);
-        if (result.is_available) {
+        if (!render(&board, frame, FPS) || board.statistics.total_removed_lines >= lines) {
             return;
         }
 

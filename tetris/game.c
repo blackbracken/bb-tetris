@@ -47,10 +47,13 @@ void gen_board(Board *board) {
         board->next_minos[i] = pop_mino_from_seed(&board->seed);
     }
 
+    Statistics statistics = {};
+    board->statistics = statistics;
+
     try_spawn_mino(board, NULL);
 }
 
-Result render(Board *board, int frame, int fps) {
+bool render(Board *board, int frame, int fps) {
     if (!can_move_as(board, fall_mino_once)) {
         board->lockdown_count++;
     }
@@ -59,12 +62,7 @@ Result render(Board *board, int frame, int fps) {
         board->lockdown_count = 0;
 
         if (!put_and_try_next(board)) {
-            Result result = {};
-            result.is_available = true;
-            result.score = 1000; // TODO: remove
-            result.total_removed_lines = 10;
-
-            return result;
+            return false;
         }
     }
 
@@ -74,8 +72,7 @@ Result render(Board *board, int frame, int fps) {
         }
     }
 
-    Result unavailable = {.is_available = false};
-    return unavailable;
+    return true;
 }
 
 void move_left(Board *board) { board->dropping_mino_x--; }
@@ -129,10 +126,10 @@ void try_spin_left(Board *board) {
 void try_hold(Board *board) {
     if (board->did_already_hold) return;
 
-    Tetrimino const *dropping_now = board->dropping_mino;
+    Tetrimino const *dropping = board->dropping_mino;
 
     try_spawn_mino(board, board->held_mino);
-    board->held_mino = dropping_now;
+    board->held_mino = dropping;
     board->did_already_hold = true;
 }
 
@@ -181,6 +178,8 @@ bool put_and_try_next(Board *board) {
             if (remove_line_if_completed(board, y_on_field)) removed_lines++;
         }
     }
+
+    board->statistics.total_removed_lines += removed_lines;
 
     // TODO: calculate score
 
@@ -308,8 +307,11 @@ void gen_shuffled_minos(Tetrimino const *shuffled[7]) {
 
     for (int left = 0; left < 7; left++) {
         int right = rand() % 7;
-        Tetrimino const *temp = shuffled[left];
-        shuffled[left] = shuffled[right];
-        shuffled[right] = temp;
+
+        if (left != right) {
+            Tetrimino const *temp = shuffled[left];
+            shuffled[left] = shuffled[right];
+            shuffled[right] = temp;
+        }
     }
 }
