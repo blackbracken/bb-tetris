@@ -23,7 +23,7 @@ MenuDestination disp_menu() {
 
     while (true) {
         efface_window();
-        draw_window_frame();
+        draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
 
         // draw a title
         move(8, calc_center_x_of_text(TEXT_TITLE));

@@ -5,10 +5,12 @@
 const int WINDOW_WIDTH = 80;
 const int WINDOW_HEIGHT = 40;
 
-const short COLOR_ID_NONE = 0;
-const short COLOR_ID_FIELD = 1;
-const short COLOR_ID_WINDOW = 2;
-const short COLOR_ID_BOARD_TEXT = 3;
+const short COLOR_ID_NONE = 64;
+const short COLOR_ID_FIELD = 65;
+const short COLOR_ID_WINDOW = 66;
+const short COLOR_ID_PLAIN = 67;
+const short COLOR_ID_SUCCESS = 68;
+const short COLOR_ID_FAILURE = 69;
 
 void init_curses() {
     curs_set(0);
@@ -20,7 +22,9 @@ void init_curses() {
     init_pair(COLOR_ID_NONE, -1, -1);
     init_pair(COLOR_ID_FIELD, COLOR_CYAN, -1);
     init_pair(COLOR_ID_WINDOW, COLOR_WHITE, -1);
-    init_pair(COLOR_ID_BOARD_TEXT, COLOR_WHITE, -1);
+    init_pair(COLOR_ID_PLAIN, COLOR_WHITE, -1);
+    init_pair(COLOR_ID_SUCCESS, COLOR_CYAN, -1);
+    init_pair(COLOR_ID_FAILURE, COLOR_YELLOW, -1);
     init_pair(to_color_id(RED), -1, COLOR_RED);
     init_pair(to_color_id(WHITE), -1, COLOR_WHITE);
     init_pair(to_color_id(YELLOW), -1, COLOR_YELLOW);
@@ -30,23 +34,23 @@ void init_curses() {
     init_pair(to_color_id(PURPLE), -1, COLOR_MAGENTA);
 }
 
-void draw_window_frame() {
+void draw_window_frame(int start_y, int start_x, int end_y, int end_x) {
     attrset(COLOR_PAIR(COLOR_ID_WINDOW));
 
-    for (int y = 1; y < WINDOW_HEIGHT - 1; y++) {
-        move(y, 0);
+    for (int y = start_y; y < end_y - 1; y++) {
+        move(y, start_x);
         addstr("[]");
     }
-    for (int y = 1; y < WINDOW_HEIGHT - 1; y++) {
-        move(y, WINDOW_WIDTH - 2);
+    for (int y = start_y; y < end_y - 1; y++) {
+        move(y, end_x - 2);
         addstr("[]");
     }
-    for (int x = 0; x < WINDOW_WIDTH; x++) {
-        move(0, x);
+    for (int x = start_x; x < end_x; x++) {
+        move(start_y, x);
         addch('=');
     }
-    for (int x = 0; x < WINDOW_WIDTH; x++) {
-        move(WINDOW_HEIGHT - 1, x);
+    for (int x = start_x; x < end_x; x++) {
+        move(end_y - 1, x);
         addch('=');
     }
 }

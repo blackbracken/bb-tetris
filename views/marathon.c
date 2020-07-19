@@ -7,6 +7,7 @@
 
 #include "../graphics.h"
 #include "../tetris/game.h"
+#include "result_marathon.h"
 
 const int FPS = 30;
 const int DELAY_MILLI_PER_FRAME = 1000 / FPS;
@@ -26,7 +27,7 @@ void start_marathon(int lines) {
 
     { // prepare view
         efface_window();
-        draw_window_frame();
+        draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
         draw_board_frame(field_orig_y, field_orig_x);
         erase_background_of_field(field_orig_y, field_orig_x);
     }
@@ -35,16 +36,15 @@ void start_marathon(int lines) {
     gen_board(&board);
 
     int frame = 1;
-    struct timespec timespec;
+    time_t start = time(NULL);
+    struct timespec delta_timespec;
     while (true) {
-        timespec_get(&timespec, TIME_UTC);
-        long milli_start = timespec.tv_nsec / 1000 / 1000;
+        timespec_get(&delta_timespec, TIME_UTC);
+        long milli_start = delta_timespec.tv_nsec / 1000 / 1000;
 
         timeout(DELAY_MILLI_PER_FRAME);
 
-        if (!render(&board, frame, FPS) || board.statistics.total_removed_lines >= lines) {
-            return;
-        }
+        bool is_buried = !render(&board, frame, FPS);
 
         { // draw view
             erase_background_of_field(field_orig_y, field_orig_x);
@@ -102,6 +102,12 @@ void start_marathon(int lines) {
             refresh();
         }
 
+        if (is_buried || board.statistics.total_removed_lines >= lines) {
+            time_t end = time(NULL);
+            disp_marathon_result(lines, (int) difftime(end, start), &board.statistics);
+            return;
+        }
+
         int input_key = getch();
         switch (input_key) {
             case 'a':
@@ -135,8 +141,8 @@ void start_marathon(int lines) {
 
         if (++frame % (FPS + 1) == 0) frame = 1;
 
-        timespec_get(&timespec, TIME_UTC);
-        long milli_finish = timespec.tv_nsec / 1000 / 1000;
+        timespec_get(&delta_timespec, TIME_UTC);
+        long milli_finish = delta_timespec.tv_nsec / 1000 / 1000;
         if (milli_finish < milli_start) milli_finish += 1000;
 
         // stabilize fps
@@ -167,7 +173,7 @@ void draw_board_frame(int field_orig_y, int field_orig_x) {
         }
     }
 
-    attrset(COLOR_PAIR(COLOR_ID_BOARD_TEXT));
+    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
     {
         // draw hold text
         move(field_orig_y, field_orig_x - (2 + 2) - strlen(TEXT_HOLD));
