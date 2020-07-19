@@ -14,6 +14,8 @@ void fall_mino_once(Board *board);
 
 bool put_and_try_next(Board *board);
 
+bool remove_line_if_completed(Board *board, int removed_y);
+
 bool can_move_as(const Board *board, void (*predicate)(Board *));
 
 bool try_spawn_mino(Board *board);
@@ -147,20 +149,42 @@ bool put_and_try_next(Board *board) {
 
     MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
 
+    int removed_lines = 0;
+
     calc_dropping_mino_locations_on_field(board, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;
         int y_on_field = locations[i].y;
 
-        if (y_on_field < FIELD_HEIGHT) {
-            board->field[y_on_field][x_on_field] = board->dropping_mino->color;
-        } else {
+        if (y_on_field >= FIELD_HEIGHT) {
             return false;
+        } else {
+            board->field[y_on_field][x_on_field] = board->dropping_mino->color;
+
+            if (remove_line_if_completed(board, y_on_field)) removed_lines++;
         }
     }
 
     if (!try_spawn_mino(board)) {
         return false;
+    }
+
+    return true;
+}
+
+bool remove_line_if_completed(Board *board, int removed_y) {
+    for (int i = 0; i < FIELD_WIDTH; i++) {
+        if (board->field[removed_y][i] == AIR) return false;
+    }
+
+    // shift lines above removed line to lower.
+    for (int j = removed_y - 1; 0 < j; j--) {
+        for (int i = 0; i < FIELD_WIDTH; i++) {
+            board->field[j + 1][i] = board->field[j][i];
+        }
+    }
+    for (int i = 0; i < FIELD_WIDTH; i++) {
+        board->field[0][i] = AIR;
     }
 
     return true;

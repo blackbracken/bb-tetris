@@ -116,7 +116,7 @@ void start_marathon(int lines) {
 
 void draw_board_frame(int field_orig_y, int field_orig_x) {
     // draw walls
-    for (int i = 0; i < FIELD_HEIGHT; i++) {
+    for (int i = 1; i < FIELD_HEIGHT; i++) {
         move(field_orig_y + i, field_orig_x - 2);
         attrset(COLOR_PAIR(COLOR_ID_FIELD));
         addstr("[]");
@@ -135,7 +135,7 @@ void draw_board_frame(int field_orig_y, int field_orig_x) {
 }
 
 void erase_background_of_field(int orig_y, int orig_x) {
-    for (int j = 0; j < FIELD_HEIGHT; j++) {
+    for (int j = 1; j < FIELD_HEIGHT; j++) {
         for (int i = 0; i < FIELD_WIDTH; i++) {
             bool should_be_period = i % 2 == 0 && j % 2 == 0;
 
