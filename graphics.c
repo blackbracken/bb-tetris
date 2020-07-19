@@ -7,7 +7,8 @@ const int WINDOW_HEIGHT = 40;
 
 const short COLOR_ID_NONE = 0;
 const short COLOR_ID_FIELD = 1;
-const short COLOR_ID_BOARD_TEXT = 2;
+const short COLOR_ID_WINDOW = 2;
+const short COLOR_ID_BOARD_TEXT = 3;
 
 void init_curses() {
     curs_set(0);
@@ -18,6 +19,7 @@ void init_curses() {
 
     init_pair(COLOR_ID_NONE, -1, -1);
     init_pair(COLOR_ID_FIELD, COLOR_CYAN, -1);
+    init_pair(COLOR_ID_WINDOW, COLOR_WHITE, -1);
     init_pair(COLOR_ID_BOARD_TEXT, COLOR_WHITE, -1);
     init_pair(to_color_id(RED), -1, COLOR_RED);
     init_pair(to_color_id(WHITE), -1, COLOR_WHITE);
@@ -29,6 +31,8 @@ void init_curses() {
 }
 
 void draw_window_frame() {
+    attrset(COLOR_PAIR(COLOR_ID_WINDOW));
+
     for (int y = 1; y < WINDOW_HEIGHT - 1; y++) {
         move(y, 0);
         addstr("[]");
@@ -48,10 +52,11 @@ void draw_window_frame() {
 }
 
 void efface_window() {
+    attrset(COLOR_PAIR(COLOR_ID_NONE));
+
     for (int y = 0; y < WINDOW_HEIGHT; y++) {
         for (int x = 0; x < WINDOW_WIDTH; x++) {
             move(y, x);
-            attrset(COLOR_PAIR(COLOR_ID_NONE));
             addch(' ');
         }
     }

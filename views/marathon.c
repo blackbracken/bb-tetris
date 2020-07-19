@@ -72,10 +72,11 @@ void start_marathon(int lines) {
                 int y = field_orig_y + 3;
                 int x = field_orig_x - 2 - 6;
 
+                attrset(COLOR_PAIR(COLOR_ID_NONE));
+
                 for (int j = -2; j < 6; j++) {
                     for (int i = -2; i < 6; i++) {
                         move(y + j, x + i);
-                        attrset(COLOR_PAIR(COLOR_ID_NONE));
                         addch(' ');
                     }
                 }
@@ -87,10 +88,11 @@ void start_marathon(int lines) {
                 int y = field_orig_y + 3 + 4 * next_idx;
                 int x = field_orig_x + 2 * FIELD_WIDTH + 2 + 4;
 
+                attrset(COLOR_PAIR(COLOR_ID_NONE));
+
                 for (int j = -2; j < 6; j++) {
                     for (int i = -2; i < 6; i++) {
                         move(y + j, x + i);
-                        attrset(COLOR_PAIR(COLOR_ID_NONE));
                         addch(' ');
                     }
                 }
@@ -146,52 +148,56 @@ void start_marathon(int lines) {
 }
 
 void draw_board_frame(int field_orig_y, int field_orig_x) {
-    // draw field walls
-    for (int i = 1; i < FIELD_HEIGHT; i++) {
-        move(field_orig_y + i, field_orig_x - 2);
-        attrset(COLOR_PAIR(COLOR_ID_FIELD));
-        addstr("[]");
 
-        move(field_orig_y + i, field_orig_x + 2 * FIELD_WIDTH);
-        attrset(COLOR_PAIR(COLOR_ID_FIELD));
-        addstr("[]");
+    attrset(COLOR_PAIR(COLOR_ID_FIELD));
+    {
+        // draw field walls
+        for (int i = 1; i < FIELD_HEIGHT; i++) {
+            move(field_orig_y + i, field_orig_x - 2);
+            addstr("[]");
+
+            move(field_orig_y + i, field_orig_x + 2 * FIELD_WIDTH);
+            addstr("[]");
+        }
+
+        // draw field bottom
+        for (int i = -2; i < 2 * FIELD_WIDTH + 2; i++) {
+            move(field_orig_y + FIELD_HEIGHT, field_orig_x + i);
+            addch('T');
+        }
     }
 
-    // draw field bottom
-    for (int i = -2; i < 2 * FIELD_WIDTH + 2; i++) {
-        move(field_orig_y + FIELD_HEIGHT, field_orig_x + i);
-        attrset(COLOR_PAIR(COLOR_ID_FIELD));
-        addch('T');
+    attrset(COLOR_PAIR(COLOR_ID_BOARD_TEXT));
+    {
+        // draw hold text
+        move(field_orig_y, field_orig_x - (2 + 2) - strlen(TEXT_HOLD));
+        addstr(TEXT_HOLD);
+
+        // draw next text
+        move(field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
+        addstr(TEXT_NEXT);
     }
-
-    // draw hold text
-    move(field_orig_y, field_orig_x - (2 + 2) - strlen(TEXT_HOLD));
-    attrset(COLOR_PAIR(COLOR_ID_BOARD_TEXT));
-    addstr(TEXT_HOLD);
-
-    // draw next text
-    move(field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
-    attrset(COLOR_PAIR(COLOR_ID_BOARD_TEXT));
-    addstr(TEXT_NEXT);
 }
 
 void erase_background_of_field(int orig_y, int orig_x) {
+    attrset(COLOR_PAIR(COLOR_ID_FIELD));
+
     for (int j = 1; j < FIELD_HEIGHT; j++) {
         for (int i = 0; i < FIELD_WIDTH; i++) {
             bool should_be_period = i % 2 == 0 && j % 2 == 0;
 
             move(orig_y + j, orig_x + i);
-            attrset(COLOR_PAIR(COLOR_ID_FIELD));
             addch(should_be_period ? '.' : ' ');
 
             move(orig_y + j, orig_x + i + 10);
-            attrset(COLOR_PAIR(COLOR_ID_FIELD));
             addch(should_be_period ? '.' : ' ');
         }
     }
 }
 
 void draw_mino(Tetrimino const *mino, int y, int x, int spin) {
+    attrset(COLOR_PAIR(to_color_id(mino->color)));
+
     for (int j = 0; j < mino->size; j++) {
         for (int i = 0; i < mino->size; i++) {
             if (mino->shape[spin][j][i]) {
@@ -199,7 +205,6 @@ void draw_mino(Tetrimino const *mino, int y, int x, int spin) {
                         y + (j - mino->center_y),
                         x + 2 * (i - mino->center_x)
                 );
-                attrset(COLOR_PAIR(to_color_id(mino->color)));
                 addstr("  ");
             }
         }
