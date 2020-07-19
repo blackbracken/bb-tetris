@@ -8,7 +8,7 @@ const int BLOCK_AMOUNT_IN_MINO = 4;
 
 typedef struct {
     int x, y;
-} Location;
+} MinoLocation;
 
 void fall_mino_once(Board *board);
 
@@ -18,7 +18,7 @@ bool can_move_as(const Board *board, void (*predicate)(Board *));
 
 bool try_spawn_mino(Board *board);
 
-void calc_dropping_mino_locations_on_field(Board *board, Location *locations);
+void calc_dropping_mino_locations_on_field(Board *board, MinoLocation *locations);
 
 bool will_overlap_mass_between_fields_and_dropping_minos(Board *board);
 
@@ -125,7 +125,7 @@ bool can_move_as(const Board *board, void (*predicate)(Board *)) {
     Board assumed = *board;
     predicate(&assumed);
 
-    Location locations[BLOCK_AMOUNT_IN_MINO];
+    MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
     calc_dropping_mino_locations_on_field(&assumed, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;
@@ -145,7 +145,7 @@ bool can_move_as(const Board *board, void (*predicate)(Board *)) {
 bool put_and_try_next(Board *board) {
     if (can_move_as(board, fall_mino_once)) return true;
 
-    Location locations[BLOCK_AMOUNT_IN_MINO];
+    MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
 
     calc_dropping_mino_locations_on_field(board, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
@@ -184,7 +184,7 @@ bool try_spawn_mino(Board *board) {
     return true;
 }
 
-void calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
+void calc_dropping_mino_locations_on_field(Board *board, MinoLocation *locations) {
     int amount = 0;
 
     for (int j = 0; j < board->dropping_mino->size; j++) {
@@ -193,7 +193,7 @@ void calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
                 continue;
             }
 
-            Location loc_on_field = {
+            MinoLocation loc_on_field = {
                     .x = board->dropping_mino_x + (i - board->dropping_mino->center_x),
                     .y = board->dropping_mino_y + (j - board->dropping_mino->center_y),
             };
@@ -203,7 +203,7 @@ void calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
 }
 
 bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
-    Location locations[BLOCK_AMOUNT_IN_MINO];
+    MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
     calc_dropping_mino_locations_on_field(board, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;

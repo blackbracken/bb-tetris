@@ -18,7 +18,6 @@ typedef struct {
     int order;
 } MinoSeed;
 
-
 typedef struct {
     int frame;
     MinoBlock field[FIELD_HEIGHT][FIELD_WIDTH];

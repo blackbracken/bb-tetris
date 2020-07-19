@@ -1,7 +1,16 @@
 #ifndef BBTETRIS_TETRIMINO_H
 #define BBTETRIS_TETRIMINO_H
 
-#include "../graphics.h"
+typedef enum {
+    RED = 21,
+    WHITE = 22,
+    YELLOW = 23,
+    GREEN = 24,
+    CYAN = 25,
+    BLUE = 26,
+    PURPLE = 27,
+    AIR = 28,
+} MinoBlock;
 
 typedef struct {
     const int center_x, center_y;
