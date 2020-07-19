@@ -10,7 +10,7 @@
 typedef struct {
     bool is_available;
     int score;
-    int removed_lines;
+    int total_removed_lines;
 } Result;
 
 typedef struct {
@@ -22,6 +22,8 @@ typedef struct {
     int frame;
     MinoBlock field[FIELD_HEIGHT][FIELD_WIDTH];
     Tetrimino const *dropping_mino;
+    Tetrimino const *held_mino;
+    bool did_already_hold;
     int dropping_mino_x, dropping_mino_y;
     int dropping_mino_spin;
     int dropping_mass_per_second;
@@ -44,5 +46,7 @@ void try_move_right(Board *board);
 void drop_softly(Board *board);
 
 void drop_hardly(Board *board);
+
+void try_hold(Board *board);
 
 #endif

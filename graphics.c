@@ -7,6 +7,7 @@ const int WINDOW_HEIGHT = 40;
 
 const short COLOR_ID_NONE = 0;
 const short COLOR_ID_FIELD = 1;
+const short COLOR_ID_BOARD_TEXT = 2;
 
 void init_curses() {
     curs_set(0);
@@ -17,6 +18,7 @@ void init_curses() {
 
     init_pair(COLOR_ID_NONE, -1, -1);
     init_pair(COLOR_ID_FIELD, COLOR_CYAN, -1);
+    init_pair(COLOR_ID_BOARD_TEXT, COLOR_WHITE, -1);
     init_pair(to_color_id(RED), -1, COLOR_RED);
     init_pair(to_color_id(WHITE), -1, COLOR_WHITE);
     init_pair(to_color_id(YELLOW), -1, COLOR_YELLOW);

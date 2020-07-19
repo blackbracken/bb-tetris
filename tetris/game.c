@@ -18,7 +18,7 @@ bool remove_line_if_completed(Board *board, int removed_y);
 
 bool can_move_as(const Board *board, void (*predicate)(Board *));
 
-bool try_spawn_mino(Board *board);
+bool try_spawn_mino(Board *board, Tetrimino const *nullable_next);
 
 void calc_dropping_mino_locations_on_field(Board *board, MinoLocation *locations);
 
@@ -36,11 +36,13 @@ void gen_board(Board *board) {
             board->field[j][i] = AIR;
         }
     }
+    board->held_mino = NULL;
+    board->did_already_hold = false;
     board->dropping_mass_per_second = 1;
     board->lockdown_count = 0;
     gen_mino_seed(&board->seed);
 
-    try_spawn_mino(board);
+    try_spawn_mino(board, NULL);
 }
 
 Result render(Board *board, int frame, int fps) {
@@ -55,7 +57,7 @@ Result render(Board *board, int frame, int fps) {
             Result result = {};
             result.is_available = true;
             result.score = 1000;
-            result.removed_lines = 10;
+            result.total_removed_lines = 10;
 
             return result;
         }
@@ -119,6 +121,16 @@ void try_spin_left(Board *board) {
     }
 }
 
+void try_hold(Board *board) {
+    if (board->did_already_hold) return;
+
+    const Tetrimino *dropping_now = board->dropping_mino;
+
+    try_spawn_mino(board, board->held_mino);
+    board->held_mino = dropping_now;
+    board->did_already_hold = true;
+}
+
 void fall_mino_once(Board *board) {
     board->dropping_mino_y++;
 }
@@ -165,9 +177,13 @@ bool put_and_try_next(Board *board) {
         }
     }
 
-    if (!try_spawn_mino(board)) {
+    // TODO: calculate score
+
+    if (!try_spawn_mino(board, NULL)) {
         return false;
     }
+
+    board->did_already_hold = false;
 
     return true;
 }
@@ -190,8 +206,8 @@ bool remove_line_if_completed(Board *board, int removed_y) {
     return true;
 }
 
-bool try_spawn_mino(Board *board) {
-    board->dropping_mino = pop_mino(&board->seed);
+bool try_spawn_mino(Board *board, Tetrimino const *nullable_next) {
+    board->dropping_mino = nullable_next != NULL ? nullable_next : pop_mino(&board->seed);
     board->dropping_mino_x = 4;
     board->dropping_mino_y = 2;
     board->dropping_mino_spin = 0;

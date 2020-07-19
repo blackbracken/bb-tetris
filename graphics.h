@@ -8,6 +8,7 @@ extern const int WINDOW_HEIGHT;
 
 extern const short COLOR_ID_NONE;
 extern const short COLOR_ID_FIELD;
+extern const short COLOR_ID_BOARD_TEXT;
 
 void init_curses();
 
