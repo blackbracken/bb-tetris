@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include <string.h>
 #include <stdlib.h>
 
 #define LENGTH_MINO_SEED 7 * 2
@@ -17,7 +16,7 @@ bool put_and_try_next(Board *board);
 
 bool can_move_as(const Board *board, void (*predicate)(Board *));
 
-void spawn_mino(Board *board);
+bool try_spawn_mino(Board *board);
 
 void calc_dropping_mino_locations_on_field(Board *board, Location *locations);
 
@@ -30,12 +29,16 @@ Tetrimino const *pop_mino(MinoSeed *seed);
 void gen_shuffled_minos(Tetrimino const *shuffled[7]);
 
 void gen_board(Board *board) {
-    memset(board->field, 0, sizeof(board->field[0][0]) * FIELD_WIDTH * FIELD_HEIGHT);
+    for (int j = 0; j < FIELD_HEIGHT; j++) {
+        for (int i = 0; i < FIELD_WIDTH; i++) {
+            board->field[j][i] = AIR;
+        }
+    }
     board->dropping_mass_per_second = 1;
     board->lockdown_count = 0;
     gen_mino_seed(&board->seed);
 
-    spawn_mino(board);
+    try_spawn_mino(board);
 }
 
 Result render(Board *board, int frame, int fps) {
@@ -130,7 +133,7 @@ bool can_move_as(const Board *board, void (*predicate)(Board *)) {
 
         if (x_on_field < 0 || y_on_field < 0
             || FIELD_WIDTH <= x_on_field || FIELD_HEIGHT <= y_on_field
-            || assumed.field[y_on_field][x_on_field] != 0) {
+            || assumed.field[y_on_field][x_on_field] != AIR) {
             return false;
         }
     }
@@ -150,13 +153,24 @@ bool put_and_try_next(Board *board) {
         int y_on_field = locations[i].y;
 
         if (y_on_field < FIELD_HEIGHT) {
-            board->field[y_on_field][x_on_field] = 1;
+            board->field[y_on_field][x_on_field] = board->dropping_mino->color;
         } else {
             return false;
         }
     }
 
-    spawn_mino(board);
+    if (!try_spawn_mino(board)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool try_spawn_mino(Board *board) {
+    board->dropping_mino = pop_mino(&board->seed);
+    board->dropping_mino_x = 4;
+    board->dropping_mino_y = 2;
+    board->dropping_mino_spin = 0;
 
     // shift to upper if overlapped
     if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
@@ -168,13 +182,6 @@ bool put_and_try_next(Board *board) {
     }
 
     return true;
-}
-
-void spawn_mino(Board *board) {
-    board->dropping_mino = pop_mino(&board->seed);
-    board->dropping_mino_x = 4;
-    board->dropping_mino_y = 2;
-    board->dropping_mino_spin = 0;
 }
 
 void calc_dropping_mino_locations_on_field(Board *board, Location *locations) {
@@ -202,7 +209,7 @@ bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
         int x_on_field = locations[i].x;
         int y_on_field = locations[i].y;
 
-        if (board->field[y_on_field][x_on_field] != 0) {
+        if (board->field[y_on_field][x_on_field] != AIR) {
             return true;
         }
     }
@@ -235,41 +242,18 @@ Tetrimino const *pop_mino(MinoSeed *seed) {
 }
 
 void gen_shuffled_minos(Tetrimino const *shuffled[7]) {
-    for (int i = 0; i < 7; i++) shuffled[i] = &MINO_T;
+    shuffled[0] = &MINO_T;
+    shuffled[1] = &MINO_O;
+    shuffled[2] = &MINO_S;
+    shuffled[3] = &MINO_Z;
+    shuffled[4] = &MINO_L;
+    shuffled[5] = &MINO_J;
+    shuffled[6] = &MINO_I;
 
     for (int left = 0; left < 7; left++) {
         int right = rand() % 7;
-        Tetrimino const *temp = shuffled[right];
-        shuffled[right] = shuffled[left];
-        shuffled[left] = temp;
+        Tetrimino const *temp = shuffled[left];
+        shuffled[left] = shuffled[right];
+        shuffled[right] = temp;
     }
 }
-
-// TODO: write spinning offsets
-const Tetrimino MINO_T = {
-        .center_x =  1,
-        .center_y =  1,
-        .shape = {
-                {
-                        {0, 1, 0},
-                        {1, 1, 1},
-                        {0, 0, 0},
-                },
-                {
-                        {0, 1, 0},
-                        {0, 1, 1},
-                        {0, 1, 0},
-                },
-                {
-                        {0, 0, 0},
-                        {1, 1, 1},
-                        {0, 1, 0},
-                },
-                {
-                        {0, 1, 0},
-                        {1, 1, 0},
-                        {0, 1, 0},
-                },
-        },
-        .size = 3,
-};

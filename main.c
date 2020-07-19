@@ -1,4 +1,9 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-msc51-cpp"
+
 #include <ncurses.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "graphics.h"
 #include "scene/title.h"
@@ -7,6 +12,7 @@
 int main() {
     WINDOW *window = initscr();
     init_curses();
+    srand(time(NULL));
 
     if (wresize(window, WINDOW_HEIGHT, WINDOW_WIDTH) == ERR) {
         fputs("A window size must be equal to or wider than 80x40.\n", stderr);
@@ -28,3 +34,5 @@ int main() {
         }
     }
 }
+
+#pragma clang diagnostic push

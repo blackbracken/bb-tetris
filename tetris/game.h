@@ -5,26 +5,7 @@
 #define FIELD_HEIGHT 21
 
 #include <stdbool.h>
-
-typedef enum {
-    RED,
-    ORANGE,
-    YELLOW,
-    GREEN,
-    CYAN,
-    BLUE,
-    PURPLE,
-    AIR
-} MinoBlock;
-
-typedef struct {
-    const int center_x, center_y;
-    const int shape[4][4][4];
-    const int size;
-    const int spin_offsets[4][5][2];
-} Tetrimino;
-
-extern const Tetrimino MINO_T;
+#include "tetrimino.h"
 
 typedef struct {
     bool is_available;

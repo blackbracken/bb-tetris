@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "../graphics.h"
-#include "../game.h"
+#include "../tetris/game.h"
 
 const int FPS = 30;
 const int DELAY_MILLI_PER_FRAME = 1000 / FPS;
@@ -47,9 +47,9 @@ void start_marathon(int lines) {
             // draw a board
             for (int j = 0; j < FIELD_HEIGHT; j++) {
                 for (int i = 0; i < FIELD_WIDTH; i++) {
-                    if (board.field[j][i]) {
+                    if (board.field[j][i] != AIR) {
                         move(field_orig_y + j, field_orig_x + 2 * i);
-                        attrset(COLOR_PAIR(COLOR_ID_MINO_T));
+                        attrset(COLOR_PAIR(to_color_id(board.field[j][i])));
                         addstr("  ");
                     }
                 }
@@ -63,7 +63,7 @@ void start_marathon(int lines) {
                                 field_orig_y + board.dropping_mino_y + (j - board.dropping_mino->center_y),
                                 field_orig_x + 2 * (board.dropping_mino_x + (i - board.dropping_mino->center_x))
                         );
-                        attrset(COLOR_PAIR(COLOR_ID_MINO_T));
+                        attrset(COLOR_PAIR(to_color_id(board.dropping_mino->color)));
                         addstr("  ");
                     }
                 }
