@@ -24,9 +24,11 @@ void calc_dropping_mino_locations_on_field(Board *board, MinoLocation *locations
 
 bool will_overlap_mass_between_fields_and_dropping_minos(Board *board);
 
+Tetrimino const *pop_next_mino(Board *board);
+
 void gen_mino_seed(MinoSeed *seed);
 
-Tetrimino const *pop_mino(MinoSeed *seed);
+Tetrimino const *pop_mino_from_seed(MinoSeed *seed);
 
 void gen_shuffled_minos(Tetrimino const *shuffled[7]);
 
@@ -41,6 +43,9 @@ void gen_board(Board *board) {
     board->dropping_mass_per_second = 1;
     board->lockdown_count = 0;
     gen_mino_seed(&board->seed);
+    for (int i = 0; i < NEXT_AMOUNT; i++) {
+        board->next_minos[i] = pop_mino_from_seed(&board->seed);
+    }
 
     try_spawn_mino(board, NULL);
 }
@@ -56,7 +61,7 @@ Result render(Board *board, int frame, int fps) {
         if (!put_and_try_next(board)) {
             Result result = {};
             result.is_available = true;
-            result.score = 1000;
+            result.score = 1000; // TODO: remove
             result.total_removed_lines = 10;
 
             return result;
@@ -100,7 +105,7 @@ void drop_softly(Board *board) {
 void drop_hardly(Board *board) {
     while (can_move_as(board, fall_mino_once)) drop_softly(board);
 
-    board->lockdown_count = 400;
+    board->lockdown_count = 1000;
 }
 
 void spin_right(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4; }
@@ -124,7 +129,7 @@ void try_spin_left(Board *board) {
 void try_hold(Board *board) {
     if (board->did_already_hold) return;
 
-    const Tetrimino *dropping_now = board->dropping_mino;
+    Tetrimino const *dropping_now = board->dropping_mino;
 
     try_spawn_mino(board, board->held_mino);
     board->held_mino = dropping_now;
@@ -207,7 +212,7 @@ bool remove_line_if_completed(Board *board, int removed_y) {
 }
 
 bool try_spawn_mino(Board *board, Tetrimino const *nullable_next) {
-    board->dropping_mino = nullable_next != NULL ? nullable_next : pop_mino(&board->seed);
+    board->dropping_mino = nullable_next != NULL ? nullable_next : pop_next_mino(board);
     board->dropping_mino_x = 4;
     board->dropping_mino_y = 2;
     board->dropping_mino_spin = 0;
@@ -257,13 +262,24 @@ bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
     return false;
 }
 
+Tetrimino const *pop_next_mino(Board *board) {
+    Tetrimino const *next = board->next_minos[0];
+
+    for (int i = 1; i < NEXT_AMOUNT; i++) {
+        board->next_minos[i - 1] = board->next_minos[i];
+    }
+    board->next_minos[NEXT_AMOUNT - 1] = pop_mino_from_seed(&board->seed);
+
+    return next;
+}
+
 void gen_mino_seed(MinoSeed *seed) {
     seed->order = 0;
     gen_shuffled_minos(&seed->blocks[0]);
     gen_shuffled_minos(&seed->blocks[LENGTH_MINO_SEED / 2]);
 }
 
-Tetrimino const *pop_mino(MinoSeed *seed) {
+Tetrimino const *pop_mino_from_seed(MinoSeed *seed) {
     switch (seed->order) {
         case LENGTH_MINO_SEED - 1:
         case LENGTH_MINO_SEED / 2 - 1:

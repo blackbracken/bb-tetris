@@ -12,6 +12,7 @@ const int FPS = 30;
 const int DELAY_MILLI_PER_FRAME = 1000 / FPS;
 
 const char *TEXT_HOLD = "HOLD";
+const char *TEXT_NEXT = "NEXT";
 
 void draw_board_frame(int field_orig_y, int field_orig_x);
 
@@ -80,6 +81,21 @@ void start_marathon(int lines) {
                     }
                 }
                 draw_mino(board.held_mino, y, x, 0);
+            }
+
+            // draw next minos
+            for (int next_idx = 0; next_idx < NEXT_AMOUNT; next_idx++) {
+                int y = field_orig_y + 3 + 4 * next_idx;
+                int x = field_orig_x + 2 * FIELD_WIDTH + 2 + 4;
+
+                for (int j = -2; j < 6; j++) {
+                    for (int i = -2; i < 6; i++) {
+                        move(y + j, x + i);
+                        attrset(COLOR_PAIR(COLOR_ID_NONE));
+                        addch(' ');
+                    }
+                }
+                draw_mino(board.next_minos[next_idx], y, x, 0);
             }
 
             refresh();
@@ -153,6 +169,11 @@ void draw_board_frame(int field_orig_y, int field_orig_x) {
     move(field_orig_y, field_orig_x - (2 + 2) - strlen(TEXT_HOLD));
     attrset(COLOR_PAIR(COLOR_ID_BOARD_TEXT));
     addstr(TEXT_HOLD);
+
+    // draw next text
+    move(field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
+    attrset(COLOR_PAIR(COLOR_ID_BOARD_TEXT));
+    addstr(TEXT_NEXT);
 }
 
 void erase_background_of_field(int orig_y, int orig_x) {
