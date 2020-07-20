@@ -188,9 +188,9 @@ void draw_board_frame(int field_orig_y, int field_orig_x) {
 void erase_background_of_field(int orig_y, int orig_x) {
     attrset(COLOR_PAIR(COLOR_ID_FIELD));
 
-    for (int j = 1; j < FIELD_HEIGHT; j++) {
+    for (int j = 0; j < FIELD_HEIGHT; j++) {
         for (int i = 0; i < FIELD_WIDTH; i++) {
-            bool should_be_period = i % 2 == 0 && j % 2 == 0;
+            bool should_be_period = 2 <= j && i % 2 == 0 && j % 2 == 0;
 
             move(orig_y + j, orig_x + i);
             addch(should_be_period ? '.' : ' ');
