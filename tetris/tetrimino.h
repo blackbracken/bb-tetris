@@ -13,10 +13,14 @@ typedef enum {
 } MinoBlock;
 
 typedef struct {
+    int x, y;
+} SpinOffset;
+
+typedef struct {
     const int center_x, center_y;
     const int shape[4][4][4];
     const int size;
-    const int spin_offsets[4][5][2];
+    const SpinOffset spin_offsets[4][5];
     const MinoBlock color;
 } Tetrimino;
 

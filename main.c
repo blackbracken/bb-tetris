@@ -26,6 +26,9 @@ int main() {
             case DEST_MARATHON_40:
                 start_marathon(40);
                 break;
+            case DEST_MARATHON_150:
+                start_marathon(150);
+                break;
             case DEST_EXIT:
                 endwin();
                 return 0;

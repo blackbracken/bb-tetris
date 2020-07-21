@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include <stdlib.h>
+#include <ncurses.h>
 
 #define LENGTH_MINO_SEED 7 * 2
 
@@ -16,13 +17,19 @@ bool put_and_try_next(Board *board);
 
 bool remove_line_if_completed(Board *board, int removed_y);
 
-bool can_move_as(const Board *board, void (*predicate)(Board *));
+void spin_left(Board *board, int offset_idx);
+
+void spin_right(Board *board, int offset_idx);
+
+bool can_move(const Board *board, void (*predicate)(Board *));
+
+int search_offset_idx_to_spin(const Board *board, bool is_clockwise);
 
 bool try_spawn_mino(Board *board, Tetrimino const *nullable_next);
 
 void calc_dropping_mino_locations_on_field(Board *board, MinoLocation *locations);
 
-bool will_overlap_mass_between_fields_and_dropping_minos(Board *board);
+bool will_overlap(Board *board);
 
 Tetrimino const *pop_next_mino(Board *board);
 
@@ -54,7 +61,7 @@ void gen_board(Board *board) {
 }
 
 bool render(Board *board, int frame, int fps) {
-    if (!can_move_as(board, fall_mino_once)) {
+    if (!can_move(board, fall_mino_once)) {
         board->lockdown_count++;
     }
 
@@ -67,7 +74,7 @@ bool render(Board *board, int frame, int fps) {
     }
 
     if (frame % (fps / board->dropping_mass_per_second) == 0) {
-        if (can_move_as(board, fall_mino_once)) {
+        if (can_move(board, fall_mino_once)) {
             fall_mino_once(board);
         }
     }
@@ -78,7 +85,7 @@ bool render(Board *board, int frame, int fps) {
 void move_left(Board *board) { board->dropping_mino_x--; }
 
 void try_move_left(Board *board) {
-    if (can_move_as(board, move_left)) {
+    if (can_move(board, move_left)) {
         move_left(board);
         board->lockdown_count = 0;
     }
@@ -87,38 +94,52 @@ void try_move_left(Board *board) {
 void move_right(Board *board) { board->dropping_mino_x++; }
 
 void try_move_right(Board *board) {
-    if (can_move_as(board, move_right)) {
+    if (can_move(board, move_right)) {
         move_right(board);
         board->lockdown_count = 0;
     }
 }
 
 void drop_softly(Board *board) {
-    if (can_move_as(board, fall_mino_once)) {
+    if (can_move(board, fall_mino_once)) {
         fall_mino_once(board);
     }
 }
 
 void drop_hardly(Board *board) {
-    while (can_move_as(board, fall_mino_once)) drop_softly(board);
+    while (can_move(board, fall_mino_once)) drop_softly(board);
 
     board->lockdown_count = 1000;
 }
 
-void spin_right(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4; }
+void spin_right(Board *board, int offset_idx) {
+    const SpinOffset *offset = &board->dropping_mino->spin_offsets[board->dropping_mino_spin][offset_idx];
+    board->dropping_mino_x += offset->x;
+    board->dropping_mino_y += offset->y;
+
+    board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4;
+}
 
 void try_spin_right(Board *board) {
-    if (can_move_as(board, spin_right)) {
-        spin_right(board);
+    int offset_idx = search_offset_idx_to_spin(board, true);
+    if (offset_idx != -1) {
+        spin_right(board, offset_idx);
         board->lockdown_count = 0;
     }
 }
 
-void spin_left(Board *board) { board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4; }
+void spin_left(Board *board, int offset_idx) {
+    board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4;
+
+    const SpinOffset *offset = &board->dropping_mino->spin_offsets[board->dropping_mino_spin][offset_idx];
+    board->dropping_mino_x -= offset->x;
+    board->dropping_mino_y -= offset->y;
+}
 
 void try_spin_left(Board *board) {
-    if (can_move_as(board, spin_left)) {
-        spin_left(board);
+    int offset_idx = search_offset_idx_to_spin(board, false);
+    if (offset_idx != -1) {
+        spin_left(board, offset_idx);
         board->lockdown_count = 0;
     }
 }
@@ -137,7 +158,7 @@ void fall_mino_once(Board *board) {
     board->dropping_mino_y++;
 }
 
-bool can_move_as(const Board *board, void (*predicate)(Board *)) {
+bool can_move(const Board *board, void (*predicate)(Board *)) {
     Board assumed = *board;
     predicate(&assumed);
 
@@ -157,9 +178,38 @@ bool can_move_as(const Board *board, void (*predicate)(Board *)) {
     return true;
 }
 
+int search_offset_idx_to_spin(const Board *board, bool is_clockwise) {
+    for (int offset_idx = 0; offset_idx < 5; offset_idx++) {
+        Board assumed = *board;
+
+        if (is_clockwise) {
+            spin_right(&assumed, offset_idx);
+        } else {
+            spin_left(&assumed, offset_idx);
+        }
+
+        MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
+        calc_dropping_mino_locations_on_field(&assumed, locations);
+
+        bool cracked = false;
+        for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
+            int x_on_field = locations[i].x;
+            int y_on_field = locations[i].y;
+
+            if (x_on_field < 0 || y_on_field < 0
+                || FIELD_WIDTH <= x_on_field || FIELD_HEIGHT <= y_on_field
+                || assumed.field[y_on_field][x_on_field] != AIR) {
+                cracked = true;
+                break;
+            }
+        }
+        if (!cracked) return offset_idx;
+    }
+    return -1;
+}
 
 bool put_and_try_next(Board *board) {
-    if (can_move_as(board, fall_mino_once)) return true;
+    if (can_move(board, fall_mino_once)) return true;
 
     MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
 
@@ -217,11 +267,11 @@ bool try_spawn_mino(Board *board, Tetrimino const *nullable_next) {
     board->dropping_mino_spin = 0;
 
     // shift to upper if overlapped
-    if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
+    if (will_overlap(board)) {
         board->dropping_mino_y = 1;
     }
     // it can't continue if overlapped yet
-    if (will_overlap_mass_between_fields_and_dropping_minos(board)) {
+    if (will_overlap(board)) {
         return false;
     }
 
@@ -229,7 +279,7 @@ bool try_spawn_mino(Board *board, Tetrimino const *nullable_next) {
 }
 
 void calc_dropping_mino_locations_on_field(Board *board, MinoLocation *locations) {
-    int amount = 0;
+    int loc_idx = 0;
 
     for (int j = 0; j < board->dropping_mino->size; j++) {
         for (int i = 0; i < board->dropping_mino->size; i++) {
@@ -241,12 +291,12 @@ void calc_dropping_mino_locations_on_field(Board *board, MinoLocation *locations
                     .x = board->dropping_mino_x + (i - board->dropping_mino->center_x),
                     .y = board->dropping_mino_y + (j - board->dropping_mino->center_y),
             };
-            locations[amount++] = loc_on_field;
+            locations[loc_idx++] = loc_on_field;
         }
     }
 }
 
-bool will_overlap_mass_between_fields_and_dropping_minos(Board *board) {
+bool will_overlap(Board *board) {
     MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
     calc_dropping_mino_locations_on_field(board, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
@@ -297,21 +347,21 @@ Tetrimino const *pop_mino_from_seed(MinoSeed *seed) {
 }
 
 void gen_shuffled_minos(Tetrimino const *shuffled[7]) {
-    shuffled[0] = &MINO_T;
-    shuffled[1] = &MINO_O;
-    shuffled[2] = &MINO_S;
-    shuffled[3] = &MINO_Z;
-    shuffled[4] = &MINO_L;
-    shuffled[5] = &MINO_J;
-    shuffled[6] = &MINO_I;
-
+    int indices[7];
+    for (int i = 0; i < 7; i++) indices[i] = i;
     for (int left = 0; left < 7; left++) {
         int right = rand() % 7;
 
-        if (left != right) {
-            Tetrimino const *temp = shuffled[left];
-            shuffled[left] = shuffled[right];
-            shuffled[right] = temp;
-        }
+        int temp = indices[left];
+        indices[left] = indices[right];
+        indices[right] = temp;
     }
+
+    shuffled[indices[0]] = &MINO_T;
+    shuffled[indices[1]] = &MINO_O;
+    shuffled[indices[2]] = &MINO_S;
+    shuffled[indices[3]] = &MINO_Z;
+    shuffled[indices[4]] = &MINO_L;
+    shuffled[indices[5]] = &MINO_J;
+    shuffled[indices[6]] = &MINO_I;
 }
