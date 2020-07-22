@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-#define LENGTH_MINO_SEED 7 * 2
+#define SIZE_OF_MINO_BAG 14
 
 const int BLOCK_AMOUNT_IN_MINO = 4;
 
@@ -33,9 +33,9 @@ bool will_overlap(Board *board);
 
 Tetrimino const *pop_next_mino(Board *board);
 
-void gen_mino_seed(MinoSeed *seed);
+void gen_mino_bag(Minobag *bag);
 
-Tetrimino const *pop_mino_from_seed(MinoSeed *seed);
+Tetrimino const *pop_mino_from_bag(Minobag *bag);
 
 void gen_shuffled_minos(Tetrimino const *shuffled[7]);
 
@@ -49,9 +49,9 @@ void gen_board(Board *board) {
     board->did_already_hold = false;
     board->dropping_mass_per_second = 1;
     board->lockdown_count = 0;
-    gen_mino_seed(&board->seed);
+    gen_mino_bag(&board->bag);
     for (int i = 0; i < NEXT_AMOUNT; i++) {
-        board->next_minos[i] = pop_mino_from_seed(&board->seed);
+        board->next_minos[i] = pop_mino_from_bag(&board->bag);
     }
 
     Statistics statistics = {};
@@ -317,31 +317,31 @@ Tetrimino const *pop_next_mino(Board *board) {
     for (int i = 1; i < NEXT_AMOUNT; i++) {
         board->next_minos[i - 1] = board->next_minos[i];
     }
-    board->next_minos[NEXT_AMOUNT - 1] = pop_mino_from_seed(&board->seed);
+    board->next_minos[NEXT_AMOUNT - 1] = pop_mino_from_bag(&board->bag);
 
     return next;
 }
 
-void gen_mino_seed(MinoSeed *seed) {
-    seed->order = 0;
-    gen_shuffled_minos(&seed->blocks[0]);
-    gen_shuffled_minos(&seed->blocks[LENGTH_MINO_SEED / 2]);
+void gen_mino_bag(Minobag *bag) {
+    bag->order = 0;
+    gen_shuffled_minos(&bag->blocks[0]);
+    gen_shuffled_minos(&bag->blocks[SIZE_OF_MINO_BAG / 2]);
 }
 
-Tetrimino const *pop_mino_from_seed(MinoSeed *seed) {
-    switch (seed->order) {
-        case LENGTH_MINO_SEED - 1:
-        case LENGTH_MINO_SEED / 2 - 1:
-            gen_shuffled_minos(&seed->blocks[(seed->order + 1) % LENGTH_MINO_SEED]);
+Tetrimino const *pop_mino_from_bag(Minobag *bag) {
+    switch (bag->order) {
+        case SIZE_OF_MINO_BAG - 1:
+        case SIZE_OF_MINO_BAG / 2 - 1:
+            gen_shuffled_minos(&bag->blocks[(bag->order + 1) % SIZE_OF_MINO_BAG]);
             break;
         default:
             break;
     }
 
-    Tetrimino const *mino = seed->blocks[seed->order];
+    Tetrimino const *mino = bag->blocks[bag->order];
 
-    seed->order++;
-    seed->order %= LENGTH_MINO_SEED;
+    bag->order++;
+    bag->order %= SIZE_OF_MINO_BAG;
 
     return mino;
 }

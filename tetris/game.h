@@ -16,7 +16,7 @@ typedef struct {
 typedef struct {
     Tetrimino const *blocks[7 * 2];
     int order;
-} MinoSeed;
+} Minobag;
 
 typedef struct {
     int frame;
@@ -29,7 +29,7 @@ typedef struct {
     int dropping_mino_spin;
     int dropping_mass_per_second;
     int lockdown_count;
-    MinoSeed seed;
+    Minobag bag;
     Statistics statistics;
 } Board;
 
