@@ -14,15 +14,20 @@ const char *TEXT_ITEM_RANKING = "RANKING";
 const char *TEXT_ITEM_HELP = "HELP";
 const char *TEXT_ITEM_EXIT = "EXIT";
 
-int calc_center_x_of_text(const char *text);
+const char *DESCRIPTION_ITEM_MARATHON_40 = "Race to clear 40 lines.";
+const char *DESCRIPTION_ITEM_MARATHON_150 = "Race to clear 150 lines.";
+const char *DESCRIPTION_ITEM_RANKING = "See the ranking.";
+const char *DESCRIPTION_ITEM_HELP = "See the instructions.";
+const char *DESCRIPTION_ITEM_EXIT = "Exit the game.";
 
-void put_selected_str(int y, int x, const char *text);
+int calc_center_x_of_text(const char *text);
 
 MenuDestination disp_menu() {
     int selected = 0;
 
     while (true) {
-        efface_window();
+        timeout(-1);
+        clear();
         draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
 
         // draw a title
@@ -34,6 +39,7 @@ MenuDestination disp_menu() {
         // draw items
         for (int item_idx = 0; item_idx < sizeof(MenuDestination) + 1; item_idx++) {
             const char *item_text;
+
             switch (item_idx) {
                 case DEST_MARATHON_40:
                     item_text = TEXT_ITEM_MARATHON_40;
@@ -55,15 +61,46 @@ MenuDestination disp_menu() {
                     break;
             }
 
-            int x = calc_center_x_of_text(item_text);
-            int y = 2 * item_idx + 16;
+            int text_x = calc_center_x_of_text(item_text);
+            int text_y = 2 * item_idx + 16;
+
+            char title[strlen(item_text) + 4];
             if (item_idx == selected) {
-                put_selected_str(y, x, item_text);
+                text_x -= 2;
+                sprintf(title, "> %s", item_text);
             } else {
-                move(y, x);
-                addstr(item_text);
+                strcpy(title, item_text);
             }
+
+            move(text_y, text_x);
+            addstr(title);
         }
+
+        const char *description;
+        switch (selected) {
+            case DEST_MARATHON_40:
+                description = DESCRIPTION_ITEM_MARATHON_40;
+                break;
+            case DEST_MARATHON_150:
+                description = DESCRIPTION_ITEM_MARATHON_150;
+                break;
+            case DEST_RANKING:
+                description = DESCRIPTION_ITEM_RANKING;
+                break;
+            case DEST_HELP:
+                description = DESCRIPTION_ITEM_HELP;
+                break;
+            case DEST_EXIT:
+                description = DESCRIPTION_ITEM_EXIT;
+                break;
+            default:
+                description = "unreachable";
+                break;
+        }
+        int desc_x = calc_center_x_of_text(description);
+        int desc_y = WINDOW_HEIGHT - 3;
+        move(desc_y, desc_x);
+        addstr(description);
 
         refresh();
 
@@ -88,13 +125,5 @@ MenuDestination disp_menu() {
 }
 
 int calc_center_x_of_text(const char *text) {
-    return WINDOW_WIDTH / 2 - strlen(text) / 2;
-}
-
-void put_selected_str(int y, int x, const char *const text) {
-    move(y, x - 2);
-    attron(A_BOLD);
-    addstr("> ");
-    attroff(A_BOLD);
-    addstr(text);
+    return WINDOW_WIDTH / 2 - (int) strlen(text) / 2;
 }

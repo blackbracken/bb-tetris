@@ -25,7 +25,8 @@ void start_marathon(int lines) {
     int field_orig_x = WINDOW_WIDTH / 2 - 12;
     int field_orig_y = 10;
 
-    { // prepare view
+    { // prepare the view
+        timeout(DELAY_MILLI_PER_FRAME);
         efface_window();
         draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
         draw_board_frame(field_orig_y, field_orig_x);
@@ -41,8 +42,6 @@ void start_marathon(int lines) {
     while (true) {
         timespec_get(&delta_timespec, TIME_UTC);
         long milli_start = delta_timespec.tv_nsec / 1000 / 1000;
-
-        timeout(DELAY_MILLI_PER_FRAME);
 
         bool is_buried = !render(&board, frame, FPS);
 
