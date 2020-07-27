@@ -17,8 +17,6 @@ void init_curses();
 
 void draw_window_frame(int start_y, int start_x, int end_y, int end_x);
 
-void efface_window();
-
 short to_color_id(MinoBlock block);
 
 #endif

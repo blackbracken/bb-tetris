@@ -38,31 +38,12 @@ void draw_window_frame(int start_y, int start_x, int end_y, int end_x) {
     attrset(COLOR_PAIR(COLOR_ID_WINDOW));
 
     for (int y = start_y; y < end_y - 1; y++) {
-        move(y, start_x);
-        addstr("[]");
-    }
-    for (int y = start_y; y < end_y - 1; y++) {
-        move(y, end_x - 2);
-        addstr("[]");
+        mvaddstr(y, start_x, "[]");
+        mvaddstr(y, end_x - 2, "[]");
     }
     for (int x = start_x; x < end_x; x++) {
-        move(start_y, x);
-        addch('=');
-    }
-    for (int x = start_x; x < end_x; x++) {
-        move(end_y - 1, x);
-        addch('=');
-    }
-}
-
-void efface_window() {
-    attrset(COLOR_PAIR(COLOR_ID_NONE));
-
-    for (int y = 0; y < WINDOW_HEIGHT; y++) {
-        for (int x = 0; x < WINDOW_WIDTH; x++) {
-            move(y, x);
-            addch(' ');
-        }
+        mvaddch(start_y, x, '=');
+        mvaddch(end_y - 1, x, '=');
     }
 }
 

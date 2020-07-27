@@ -57,6 +57,7 @@ const Tetrimino MINO_T = {
                 },
         },
         .color = PURPLE,
+        .shape_sign = 'T',
 };
 
 const Tetrimino MINO_S = {
@@ -116,6 +117,7 @@ const Tetrimino MINO_S = {
                 },
         },
         .color = GREEN,
+        .shape_sign = 'S',
 };
 
 const Tetrimino MINO_Z = {
@@ -175,6 +177,7 @@ const Tetrimino MINO_Z = {
                 },
         },
         .color = RED,
+        .shape_sign = 'Z',
 };
 
 const Tetrimino MINO_L = {
@@ -234,6 +237,7 @@ const Tetrimino MINO_L = {
                 },
         },
         .color = WHITE,
+        .shape_sign = 'L',
 };
 
 const Tetrimino MINO_J = {
@@ -293,6 +297,7 @@ const Tetrimino MINO_J = {
                 },
         },
         .color = BLUE,
+        .shape_sign = 'J',
 };
 
 const Tetrimino MINO_O = {
@@ -348,6 +353,7 @@ const Tetrimino MINO_O = {
                 },
         },
         .color = YELLOW,
+        .shape_sign = 'O',
 };
 
 const Tetrimino MINO_I = {
@@ -411,4 +417,5 @@ const Tetrimino MINO_I = {
                 }
         },
         .color = CYAN,
+        .shape_sign = 'I',
 };

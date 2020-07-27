@@ -17,7 +17,7 @@ const char *TEXT_NEXT = "NEXT";
 
 void draw_board_frame(int field_orig_y, int field_orig_x);
 
-void draw_mino(Tetrimino const *mino, int y, int x, int spin);
+void draw_mino(const Tetrimino *mino, int y, int x, int spin);
 
 void erase_background_of_field(int orig_y, int orig_x);
 
@@ -27,17 +27,16 @@ void start_marathon(int lines) {
 
     { // prepare the view
         timeout(DELAY_MILLI_PER_FRAME);
-        efface_window();
+        erase();
         draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
         draw_board_frame(field_orig_y, field_orig_x);
         erase_background_of_field(field_orig_y, field_orig_x);
     }
 
     Board board;
-    gen_board(&board);
+    make_board(&board);
 
     int frame = 1;
-    time_t start = time(NULL);
     struct timespec delta_timespec;
     while (true) {
         timespec_get(&delta_timespec, TIME_UTC);
@@ -52,9 +51,8 @@ void start_marathon(int lines) {
             for (int j = 0; j < FIELD_HEIGHT; j++) {
                 for (int i = 0; i < FIELD_WIDTH; i++) {
                     if (board.field[j][i] != AIR) {
-                        move(field_orig_y + j, field_orig_x + 2 * i);
                         attrset(COLOR_PAIR(to_color_id(board.field[j][i])));
-                        addstr("  ");
+                        mvaddstr(field_orig_y + j, field_orig_x + 2 * i, "  ");
                     }
                 }
             }
@@ -75,8 +73,7 @@ void start_marathon(int lines) {
 
                 for (int j = -2; j < 6; j++) {
                     for (int i = -2; i < 6; i++) {
-                        move(y + j, x + i);
-                        addch(' ');
+                        mvaddch(y + j, x + i, ' ');
                     }
                 }
                 draw_mino(board.held_mino, y, x, 0);
@@ -91,19 +88,17 @@ void start_marathon(int lines) {
 
                 for (int j = -2; j < 6; j++) {
                     for (int i = -2; i < 6; i++) {
-                        move(y + j, x + i);
-                        addch(' ');
+                        mvaddch(y + j, x + i, ' ');
                     }
                 }
-                draw_mino(board.next_minos[next_idx], y, x, 0);
+                draw_mino(peek_next(&board, next_idx), y, x, 0);
             }
 
             refresh();
         }
 
         if (is_buried || board.statistics.total_removed_lines >= lines) {
-            time_t end = time(NULL);
-            disp_marathon_result(lines, (int) difftime(end, start), &board.statistics);
+            disp_marathon_result(lines, &board.statistics);
             return;
         }
 
@@ -158,29 +153,20 @@ void draw_board_frame(int field_orig_y, int field_orig_x) {
     {
         // draw field walls
         for (int i = 1; i < FIELD_HEIGHT; i++) {
-            move(field_orig_y + i, field_orig_x - 2);
-            addstr("[]");
-
-            move(field_orig_y + i, field_orig_x + 2 * FIELD_WIDTH);
-            addstr("[]");
+            mvaddstr(field_orig_y + i, field_orig_x - 2, "[]");
+            mvaddstr(field_orig_y + i, field_orig_x + 2 * FIELD_WIDTH, "[]");
         }
 
         // draw field bottom
         for (int i = -2; i < 2 * FIELD_WIDTH + 2; i++) {
-            move(field_orig_y + FIELD_HEIGHT, field_orig_x + i);
-            addch('T');
+            mvaddch(field_orig_y + FIELD_HEIGHT, field_orig_x + i, 'T');
         }
     }
 
     attrset(COLOR_PAIR(COLOR_ID_PLAIN));
     {
-        // draw hold text
-        move(field_orig_y, field_orig_x - (2 + 2) - strlen(TEXT_HOLD));
-        addstr(TEXT_HOLD);
-
-        // draw next text
-        move(field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
-        addstr(TEXT_NEXT);
+        mvaddstr(field_orig_y, field_orig_x - (2 + 2) - strlen(TEXT_HOLD), TEXT_HOLD);
+        mvaddstr(field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4, TEXT_NEXT);
     }
 }
 
@@ -191,26 +177,19 @@ void erase_background_of_field(int orig_y, int orig_x) {
         for (int i = 0; i < FIELD_WIDTH; i++) {
             bool should_be_period = 2 <= j && i % 2 == 0 && j % 2 == 0;
 
-            move(orig_y + j, orig_x + i);
-            addch(should_be_period ? '.' : ' ');
-
-            move(orig_y + j, orig_x + i + 10);
-            addch(should_be_period ? '.' : ' ');
+            mvaddch(orig_y + j, orig_x + i, should_be_period ? '.' : ' ');
+            mvaddch(orig_y + j, orig_x + i + 10, should_be_period ? '.' : ' ');
         }
     }
 }
 
-void draw_mino(Tetrimino const *mino, int y, int x, int spin) {
+void draw_mino(const Tetrimino *mino, int y, int x, int spin) {
     attrset(COLOR_PAIR(to_color_id(mino->color)));
 
     for (int j = 0; j < mino->size; j++) {
         for (int i = 0; i < mino->size; i++) {
             if (mino->shape[spin][j][i]) {
-                move(
-                        y + (j - mino->center_y),
-                        x + 2 * (i - mino->center_x)
-                );
-                addstr("  ");
+                mvaddstr(y + (j - mino->center_y), x + 2 * (i - mino->center_x), "  ");
             }
         }
     }

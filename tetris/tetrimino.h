@@ -22,6 +22,7 @@ typedef struct {
     const int size;
     const SpinOffset spin_offsets[4][5];
     const MinoBlock color;
+    const char shape_sign;
 } Tetrimino;
 
 extern const Tetrimino MINO_T;
@@ -31,5 +32,4 @@ extern const Tetrimino MINO_Z;
 extern const Tetrimino MINO_L;
 extern const Tetrimino MINO_J;
 extern const Tetrimino MINO_I;
-
 #endif

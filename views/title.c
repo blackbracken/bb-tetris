@@ -27,16 +27,13 @@ MenuDestination disp_menu() {
 
     while (true) {
         timeout(-1);
-        clear();
+        erase();
         draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
 
-        // draw a title
-        move(8, calc_center_x_of_text(TEXT_TITLE));
         attron(A_BOLD);
-        addstr(TEXT_TITLE);
+        mvaddstr(8, calc_center_x_of_text(TEXT_TITLE), TEXT_TITLE);
         attroff(A_BOLD);
 
-        // draw items
         for (int item_idx = 0; item_idx < sizeof(MenuDestination) + 1; item_idx++) {
             const char *item_text;
 
@@ -72,8 +69,7 @@ MenuDestination disp_menu() {
                 strcpy(title, item_text);
             }
 
-            move(text_y, text_x);
-            addstr(title);
+            mvaddstr(text_y, text_x, title);
         }
 
         const char *description;
@@ -97,10 +93,7 @@ MenuDestination disp_menu() {
                 description = "unreachable";
                 break;
         }
-        int desc_x = calc_center_x_of_text(description);
-        int desc_y = WINDOW_HEIGHT - 3;
-        move(desc_y, desc_x);
-        addstr(description);
+        mvaddstr(WINDOW_HEIGHT - 3, calc_center_x_of_text(description), description);
 
         refresh();
 

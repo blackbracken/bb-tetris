@@ -11,31 +11,33 @@
 typedef struct {
     int score;
     int total_removed_lines;
+    int elapsed_seconds;
 } Statistics;
 
 typedef struct {
-    Tetrimino const *blocks[7 * 2];
-    int order;
-} Minobag;
+    const Tetrimino *blocks[7 * 2];
+    int head, done_tail;
+} MinoBag;
 
 typedef struct {
     int frame;
     MinoBlock field[FIELD_HEIGHT][FIELD_WIDTH];
-    Tetrimino const *dropping_mino;
-    Tetrimino const *next_minos[NEXT_AMOUNT];
-    Tetrimino const *held_mino;
+    const Tetrimino *dropping_mino;
+    const Tetrimino *held_mino;
     bool did_already_hold;
     int dropping_mino_x, dropping_mino_y;
     int dropping_mino_spin;
     int dropping_mass_per_second;
     int lockdown_count;
-    Minobag bag;
+    MinoBag bag;
     Statistics statistics;
 } Board;
 
-void gen_board(Board *board);
+void make_board(Board *board);
 
 bool render(Board *board, int frame, int fps);
+
+const Tetrimino *peek_next(Board *board, int order);
 
 void try_spin_left(Board *board);
 

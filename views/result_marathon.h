@@ -3,6 +3,6 @@
 
 #include "../tetris/game.h"
 
-void disp_marathon_result(int lines, int record_seconds, Statistics *statistics);
+void disp_marathon_result(int lines, Statistics *statistics);
 
 #endif
