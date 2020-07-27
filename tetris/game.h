@@ -8,6 +8,9 @@
 #define FIELD_HEIGHT 21
 #define NEXT_AMOUNT 5
 
+extern const int FPS;
+extern const int DELAY_MILLI_PER_FRAME;
+
 typedef struct {
     int score;
     int total_removed_lines;
@@ -35,7 +38,7 @@ typedef struct {
 
 void make_board(Board *board);
 
-bool render(Board *board, int frame, int fps);
+bool render(Board *board, int frame);
 
 const Tetrimino *peek_next(Board *board, int order);
 

@@ -6,8 +6,8 @@
 #include <time.h>
 
 #include "graphics.h"
-#include "views/title.h"
-#include "views/marathon.h"
+#include "view/title.h"
+#include "view/marathon.h"
 
 int main() {
     WINDOW *window = initscr();

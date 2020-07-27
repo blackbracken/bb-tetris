@@ -5,6 +5,9 @@
 
 #define SIZE_OF_MINO_BAG 14
 
+const int FPS = 30;
+const int DELAY_MILLI_PER_FRAME = 1000 / FPS;
+
 const int BLOCK_AMOUNT_IN_MINO = 4;
 
 typedef struct {
@@ -71,8 +74,8 @@ void make_board(Board *board) {
     try_spawn_mino(board, pop_mino(&board->bag));
 }
 
-bool render(Board *board, int frame, int fps) {
-    if (frame == fps) {
+bool render(Board *board, int frame) {
+    if (frame == FPS) {
         board->statistics.elapsed_seconds++;
     }
 
@@ -80,7 +83,7 @@ bool render(Board *board, int frame, int fps) {
         board->lockdown_count++;
     }
 
-    if (board->lockdown_count >= fps / 2) {
+    if (board->lockdown_count >= FPS / 2) {
         board->lockdown_count = 0;
 
         if (!put_and_try_next(board)) {
@@ -88,7 +91,7 @@ bool render(Board *board, int frame, int fps) {
         }
     }
 
-    if (frame % (fps / board->dropping_mass_per_second) == 0) {
+    if (frame % (FPS / board->dropping_mass_per_second) == 0) {
         if (can_move(board, fall_mino_once)) {
             fall_mino_once(board);
         }

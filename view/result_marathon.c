@@ -35,10 +35,9 @@ void disp_marathon_result(int lines, Statistics *statistics) {
         mvaddstr(WINDOW_START_Y + 1, WINDOW_CENTER_X - strlen(TEXT_FAILURE) / 2, TEXT_FAILURE);
         sprintf(record, "cleared: %d lines", statistics->total_removed_lines);
     }
-    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
-    mvaddstr(WINDOW_START_Y + 3, WINDOW_CENTER_X - strlen(record) / 2, record);
 
     attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+    mvaddstr(WINDOW_START_Y + 3, WINDOW_CENTER_X - strlen(record) / 2, record);
     mvaddstr(WINDOW_END_Y - 2, WINDOW_CENTER_X - strlen(TEXT_RETURN) / 2, TEXT_RETURN);
 
     refresh();
