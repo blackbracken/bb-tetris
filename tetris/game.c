@@ -23,7 +23,7 @@ bool try_spawn_mino(Board *board, const Tetrimino *next);
 // --
 
 // -- unsafe movements on board --
-void fall_mino_once(Board *board);
+void drop_mino_once(Board *board);
 
 void move_left(Board *board);
 
@@ -71,6 +71,8 @@ void make_board(Board *board) {
     };
     board->statistics = statistics;
 
+    board->ren_count = 0;
+
     try_spawn_mino(board, pop_mino(&board->bag));
 }
 
@@ -79,7 +81,7 @@ bool render(Board *board, int frame) {
         board->statistics.elapsed_seconds++;
     }
 
-    if (!can_move(board, fall_mino_once)) {
+    if (!can_move(board, drop_mino_once)) {
         board->lockdown_count++;
     }
 
@@ -92,8 +94,8 @@ bool render(Board *board, int frame) {
     }
 
     if (frame % (FPS / board->dropping_mass_per_second) == 0) {
-        if (can_move(board, fall_mino_once)) {
-            fall_mino_once(board);
+        if (can_move(board, drop_mino_once)) {
+            drop_mino_once(board);
         }
     }
 
@@ -156,19 +158,19 @@ void try_hold(Board *board) {
 }
 
 void drop_softly(Board *board) {
-    if (can_move(board, fall_mino_once)) {
-        fall_mino_once(board);
+    if (can_move(board, drop_mino_once)) {
+        drop_mino_once(board);
     }
 }
 
 void drop_hardly(Board *board) {
-    while (can_move(board, fall_mino_once)) drop_softly(board);
+    while (can_move(board, drop_mino_once)) drop_softly(board);
 
     board->lockdown_count = 1000;
 }
 
 bool put_and_try_next(Board *board) {
-    if (can_move(board, fall_mino_once)) return true;
+    if (can_move(board, drop_mino_once)) return true;
 
     MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
 
@@ -186,6 +188,12 @@ bool put_and_try_next(Board *board) {
 
             if (remove_line_if_completed(board, y_on_field)) removed_lines++;
         }
+    }
+
+    if (removed_lines == 0) {
+        board->ren_count = 0;
+    } else {
+        board->ren_count++;
     }
 
     board->statistics.total_removed_lines += removed_lines;
@@ -235,7 +243,7 @@ bool try_spawn_mino(Board *board, const Tetrimino *mino) {
     return true;
 }
 
-void fall_mino_once(Board *board) {
+void drop_mino_once(Board *board) {
     board->dropping_mino_y++;
 }
 

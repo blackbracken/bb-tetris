@@ -8,9 +8,12 @@ const int WINDOW_HEIGHT = 40;
 const short COLOR_ID_NONE = 64;
 const short COLOR_ID_FIELD = 65;
 const short COLOR_ID_WINDOW = 66;
-const short COLOR_ID_PLAIN = 67;
-const short COLOR_ID_SUCCESS = 68;
-const short COLOR_ID_FAILURE = 69;
+const short COLOR_ID_SUCCESS = 67;
+const short COLOR_ID_FAILURE = 68;
+const short COLOR_ID_PLAIN = 69;
+const short COLOR_ID_HIGH = 70;
+const short COLOR_ID_HIGHER = 71;
+const short COLOR_ID_HIGHEST = 72;
 
 void init_curses() {
     curs_set(0);
@@ -22,9 +25,12 @@ void init_curses() {
     init_pair(COLOR_ID_NONE, -1, -1);
     init_pair(COLOR_ID_FIELD, COLOR_CYAN, -1);
     init_pair(COLOR_ID_WINDOW, COLOR_WHITE, -1);
-    init_pair(COLOR_ID_PLAIN, COLOR_WHITE, -1);
     init_pair(COLOR_ID_SUCCESS, COLOR_CYAN, -1);
     init_pair(COLOR_ID_FAILURE, COLOR_YELLOW, -1);
+    init_pair(COLOR_ID_PLAIN, COLOR_WHITE, -1);
+    init_pair(COLOR_ID_HIGH, COLOR_YELLOW, -1);
+    init_pair(COLOR_ID_HIGHER, COLOR_GREEN, -1);
+    init_pair(COLOR_ID_HIGHEST, COLOR_MAGENTA, -1);
     init_pair(to_color_id(RED), -1, COLOR_RED);
     init_pair(to_color_id(WHITE), -1, COLOR_WHITE);
     init_pair(to_color_id(YELLOW), -1, COLOR_YELLOW);

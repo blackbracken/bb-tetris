@@ -35,6 +35,7 @@ void start_marathon(int lines) {
         draw_field(&board, field_orig_y, field_orig_x);
         draw_hold(&board, field_orig_y, field_orig_x - 2 - 6);
         draw_next(&board, field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
+        draw_rewards(&board, field_orig_y + FIELD_HEIGHT + 1, field_orig_x);
         refresh();
 
         if (is_buried || board.statistics.total_removed_lines >= lines) {

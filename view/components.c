@@ -83,6 +83,25 @@ void draw_next(Board *board, int y, int x) {
     }
 }
 
+void draw_rewards(Board *board, int y, int x) {
+    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+    for (int i = 0; i < FIELD_WIDTH; i++) {
+        mvaddch(y, x + i, ' ');
+    }
+
+    if (board->ren_count > 10) {
+        attrset(COLOR_PAIR(COLOR_ID_HIGHEST));
+    } else if (board->ren_count > 7) {
+        attrset(COLOR_PAIR(COLOR_ID_HIGHER));
+    } else {
+        attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+    }
+
+    if (board->ren_count > 1) {
+        mvprintw(y, x, "%d REN", board->ren_count);
+    }
+}
+
 void draw_mino(const Tetrimino *mino, int y, int x, int spin) {
     attrset(COLOR_PAIR(to_color_id(mino->color)));
 

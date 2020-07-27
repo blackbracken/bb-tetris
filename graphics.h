@@ -9,9 +9,12 @@ extern const int WINDOW_HEIGHT;
 extern const short COLOR_ID_NONE;
 extern const short COLOR_ID_FIELD;
 extern const short COLOR_ID_WINDOW;
-extern const short COLOR_ID_PLAIN;
 extern const short COLOR_ID_SUCCESS;
 extern const short COLOR_ID_FAILURE;
+extern const short COLOR_ID_PLAIN;
+extern const short COLOR_ID_HIGH;
+extern const short COLOR_ID_HIGHER;
+extern const short COLOR_ID_HIGHEST;
 
 void init_curses();
 

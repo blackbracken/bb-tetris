@@ -34,6 +34,7 @@ typedef struct {
     int lockdown_count;
     MinoBag bag;
     Statistics statistics;
+    int ren_count;
 } Board;
 
 void make_board(Board *board);

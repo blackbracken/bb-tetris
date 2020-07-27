@@ -9,6 +9,8 @@ void draw_hold(const Board *board, int y, int x);
 
 void draw_next(Board *board, int y, int x);
 
+void draw_rewards(Board *board, int y, int x);
+
 void draw_mino(const Tetrimino *mino, int y, int x, int spin);
 
 void send_input(Board *sent, int input_key);
