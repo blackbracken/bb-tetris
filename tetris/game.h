@@ -22,6 +22,15 @@ typedef struct {
     int head, done_tail;
 } MinoBag;
 
+typedef enum {
+    NONE,
+    TETRIS,
+    TSPIN_SINGLE,
+    TSPIN_DOUBLE,
+    TSPIN_TRIPLE,
+    PERFECT_CLEAR,
+} RemovingReward;
+
 typedef struct {
     int frame;
     MinoBlock field[FIELD_HEIGHT][FIELD_WIDTH];
@@ -35,6 +44,8 @@ typedef struct {
     MinoBag bag;
     Statistics statistics;
     int ren_count;
+    RemovingReward removing_reward;
+    bool on_ready_back_to_back, did_back_to_back;
 } Board;
 
 void make_board(Board *board);

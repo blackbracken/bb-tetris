@@ -85,7 +85,7 @@ void draw_next(Board *board, int y, int x) {
 
 void draw_rewards(Board *board, int y, int x) {
     attrset(COLOR_PAIR(COLOR_ID_PLAIN));
-    for (int i = 0; i < FIELD_WIDTH; i++) {
+    for (int i = 0; i < 2 * FIELD_WIDTH + 4; i++) {
         mvaddch(y, x + i, ' ');
     }
 
@@ -99,6 +99,36 @@ void draw_rewards(Board *board, int y, int x) {
 
     if (board->ren_count > 1) {
         mvprintw(y, x, "%d REN", board->ren_count);
+    }
+
+    if (board->did_back_to_back) {
+        attrset(COLOR_PAIR(COLOR_ID_FIELD));
+        mvprintw(y, x + 7, "BtB");
+    }
+
+    switch (board->removing_reward) {
+        case TETRIS:
+            attrset(COLOR_PAIR(COLOR_ID_FIELD));
+            mvprintw(y, x + 11, "Tetris");
+            break;
+        case TSPIN_TRIPLE:
+            attrset(COLOR_PAIR(COLOR_ID_HIGHER));
+            mvprintw(y, x + 11, "T-spin Tri.");
+            break;
+        case TSPIN_DOUBLE:
+            attrset(COLOR_PAIR(COLOR_ID_HIGH));
+            mvprintw(y, x + 11, "T-spin Dou.");
+            break;
+        case TSPIN_SINGLE:
+            attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+            mvprintw(y, x + 11, "T-spin Sin.");
+            break;
+        case PERFECT_CLEAR:
+            attrset(COLOR_PAIR(COLOR_ID_HIGHEST));
+            mvprintw(y, x + 11, "PERFECT CLEAR");
+            break;
+        default:
+            break;
     }
 }
 

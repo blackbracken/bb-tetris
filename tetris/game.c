@@ -72,6 +72,9 @@ void make_board(Board *board) {
     board->statistics = statistics;
 
     board->ren_count = 0;
+    board->removing_reward = NONE;
+    board->on_ready_back_to_back = false;
+    board->did_back_to_back = false;
 
     try_spawn_mino(board, pop_mino(&board->bag));
 }
@@ -176,6 +179,20 @@ bool put_and_try_next(Board *board) {
 
     int removed_lines = 0;
 
+    int filled_corner = 0;
+    for (int j = -1; j <= 1; j += 2) {
+        for (int i = -1; i <= 1; i += 2) {
+            int x_on_field = board->dropping_mino_x + i;
+            int y_on_field = board->dropping_mino_y + j;
+
+            if (x_on_field < 0 || y_on_field < 0
+                || FIELD_WIDTH <= x_on_field || FIELD_HEIGHT <= y_on_field
+                || board->field[y_on_field][x_on_field] != AIR) {
+                filled_corner++;
+            }
+        }
+    }
+
     calc_dropping_mino_locations_on_field(board, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;
@@ -193,7 +210,54 @@ bool put_and_try_next(Board *board) {
     if (removed_lines == 0) {
         board->ren_count = 0;
     } else {
+        board->removing_reward = NONE;
         board->ren_count++;
+        board->did_back_to_back = false;
+    }
+
+    bool did_back_to_back = removed_lines == 4
+                            || (removed_lines > 0 && board->dropping_mino == &MINO_T && 3 <= filled_corner);
+    if (removed_lines == 4) {
+        board->removing_reward = TETRIS;
+    } else if (board->dropping_mino == &MINO_T && 3 <= filled_corner) {
+        switch (removed_lines) {
+            case 3:
+                board->removing_reward = TSPIN_TRIPLE;
+                break;
+            case 2:
+                board->removing_reward = TSPIN_DOUBLE;
+                break;
+            case 1:
+                board->removing_reward = TSPIN_SINGLE;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (removed_lines > 0) {
+        if (!did_back_to_back) {
+            board->on_ready_back_to_back = false;
+        } else {
+            if (board->on_ready_back_to_back) {
+                board->did_back_to_back = true;
+            }
+
+            board->on_ready_back_to_back = true;
+        }
+    }
+
+    bool did_perfect_clear = true;
+    for (int j = 0; j < FIELD_HEIGHT; j++) {
+        for (int i = 0; i < FIELD_WIDTH; i++) {
+            if (board->field[j][i] != AIR) {
+                did_perfect_clear = false;
+            }
+        }
+    }
+
+    if (did_perfect_clear) {
+        board->removing_reward = PERFECT_CLEAR;
     }
 
     board->statistics.total_removed_lines += removed_lines;
