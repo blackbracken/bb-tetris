@@ -165,11 +165,15 @@ void try_hold(Board *board) {
 void drop_softly(Board *board) {
     if (can_move(board, drop_mino_once)) {
         drop_mino_once(board);
+        board->statistics.score++;
     }
 }
 
 void drop_hardly(Board *board) {
-    while (can_move(board, drop_mino_once)) drop_softly(board);
+    while (can_move(board, drop_mino_once)) {
+        drop_softly(board);
+        board->statistics.score++;
+    }
 
     board->lockdown_count = 1000;
 }
@@ -215,29 +219,68 @@ bool put_and_try_next(Board *board) {
         board->ren_count = 0;
     } else {
         board->ren_count++;
+
+        if (board->ren_count > 10) {
+            board->statistics.score += 800;
+        } else if (board->ren_count > 7) {
+            board->statistics.score += 400;
+        }
     }
 
-    // attach removing rewards
+    // attach back-to-back
+    board->did_back_to_back = false;
+    bool filled_back_to_back_cond = removed_lines_count == 4
+                                    || (board->on_immediately_after_rotating
+                                        && removed_lines_count > 0
+                                        && board->dropping_mino == &MINO_T
+                                        && 3 <= filled_corner);
+    if (removed_lines_count > 0) {
+        if (!filled_back_to_back_cond) {
+            board->on_ready_back_to_back = false;
+        } else {
+            if (board->on_ready_back_to_back) {
+                board->did_back_to_back = true;
+            }
+
+            board->on_ready_back_to_back = true;
+        }
+    }
+
+    // give score and removing rewards
     board->removing_reward = NONE;
-    bool did_back_to_back = removed_lines_count == 4
-                            || (board->on_immediately_after_rotating
-                                && removed_lines_count > 0
-                                && board->dropping_mino == &MINO_T
-                                && 3 <= filled_corner
-                            );
-    if (did_back_to_back) {
+    if (filled_back_to_back_cond) {
+        int back_to_back_bonus_mag = board->did_back_to_back ? 2 : 1;
+
         switch (removed_lines_count) {
             case 4:
                 board->removing_reward = TETRIS;
+                board->statistics.score += 1200 * back_to_back_bonus_mag;
                 break;
             case 3:
                 board->removing_reward = TSPIN_TRIPLE;
+                board->statistics.score += 3200 * back_to_back_bonus_mag;
                 break;
             case 2:
                 board->removing_reward = TSPIN_DOUBLE;
+                board->statistics.score += 1600 * back_to_back_bonus_mag;
                 break;
             case 1:
                 board->removing_reward = TSPIN_SINGLE;
+                board->statistics.score += 400 * back_to_back_bonus_mag;
+                break;
+            default:
+                break;
+        }
+    } else {
+        switch (removed_lines_count) {
+            case 3:
+                board->statistics.score += 300;
+                break;
+            case 2:
+                board->statistics.score += 100;
+                break;
+            case 1:
+                board->statistics.score += 30;
                 break;
             default:
                 break;
@@ -253,20 +296,7 @@ bool put_and_try_next(Board *board) {
     }
     if (did_perfect_clear) {
         board->removing_reward = PERFECT_CLEAR;
-    }
-
-    // attach back-to-back
-    board->did_back_to_back = false;
-    if (removed_lines_count > 0) {
-        if (!did_back_to_back) {
-            board->on_ready_back_to_back = false;
-        } else {
-            if (board->on_ready_back_to_back) {
-                board->did_back_to_back = true;
-            }
-
-            board->on_ready_back_to_back = true;
-        }
+        board->statistics.score += 5000;
     }
 
     if (!try_spawn_mino(board, pop_mino(&board->bag))) {

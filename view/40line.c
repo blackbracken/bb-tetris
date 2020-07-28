@@ -37,7 +37,7 @@ bool render_frame_of_40line(Board *board, int frame) {
     draw_hold(board, FIELD_ORIG_Y, FIELD_ORIG_X - 2 - 6);
     draw_next(board, FIELD_ORIG_Y, FIELD_ORIG_X + 2 * FIELD_WIDTH + 2 + 4);
     draw_rewards(board, FIELD_ORIG_Y + FIELD_HEIGHT + 1, FIELD_ORIG_X);
-    draw_stats(board, TEXT_MODE_40LINE, FIELD_ORIG_Y + 4, FIELD_ORIG_X + 2 * FIELD_WIDTH + 14);
+    draw_stats(board, TEXT_MODE_40LINE, FIELD_ORIG_Y + 4, FIELD_ORIG_X + 2 * FIELD_WIDTH + 16);
     refresh();
 
     return !is_buried && board->statistics.total_removed_lines < TARGET_LINE;

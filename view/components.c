@@ -180,7 +180,7 @@ void draw_mino(const Tetrimino *mino, int y, int x, int spin) {
 }
 
 void draw_stats(Board *board, const char *mode_text, int y, int x) {
-    draw_window_frame(y, x, y + 11, x + 24);
+    draw_window_frame(y, x, y + 11, x + 23);
     attrset(COLOR_PAIR(COLOR_ID_PLAIN));
 
     mvprintw(y + 2, x + 3, "* MODE : %s", mode_text);
