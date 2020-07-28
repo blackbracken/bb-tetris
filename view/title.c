@@ -26,7 +26,7 @@ const char *DESCRIPTION_ITEM_EXIT = "Exit the game.";
 int calc_center_x_of_text(const char *text);
 
 MenuDestination disp_menu() {
-    int selected = 0;
+    MenuDestination selected = DEST_40LINE;
 
     while (true) {
         timeout(-1);
