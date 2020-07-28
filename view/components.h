@@ -19,6 +19,8 @@ void draw_rewards(Board *board, int y, int x);
 
 void draw_mino(const Tetrimino *mino, int y, int x, int spin);
 
+void draw_stats(Board * board, const char * mode_text, int y, int x);
+
 void send_input(Board *sent, int input_key);
 
 #endif

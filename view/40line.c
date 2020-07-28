@@ -6,7 +6,11 @@
 #include "../tetris/game.h"
 #include "components.h"
 
+#define FIELD_ORIG_X (WINDOW_WIDTH / 2 - 24)
+#define FIELD_ORIG_Y 10
+
 const char TARGET_LINE = 40;
+const char *TEXT_MODE_40LINE = "40LINE";
 
 bool render_frame_of_40line(Board *board, int frame);
 
@@ -24,18 +28,16 @@ void start_40line() {
 }
 
 bool render_frame_of_40line(Board *board, int frame) {
-    int field_orig_x = WINDOW_WIDTH / 2 - 24;
-    int field_orig_y = 10;
-
     bool is_buried = !render(board, frame);
 
     int level = board->statistics.total_removed_lines / 10 + 1;
     board->dropping_mass_per_second = level;
 
-    draw_field(board, field_orig_y, field_orig_x);
-    draw_hold(board, field_orig_y, field_orig_x - 2 - 6);
-    draw_next(board, field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
-    draw_rewards(board, field_orig_y + FIELD_HEIGHT + 1, field_orig_x);
+    draw_field(board, FIELD_ORIG_Y, FIELD_ORIG_X);
+    draw_hold(board, FIELD_ORIG_Y, FIELD_ORIG_X - 2 - 6);
+    draw_next(board, FIELD_ORIG_Y, FIELD_ORIG_X + 2 * FIELD_WIDTH + 2 + 4);
+    draw_rewards(board, FIELD_ORIG_Y + FIELD_HEIGHT + 1, FIELD_ORIG_X);
+    draw_stats(board, TEXT_MODE_40LINE, FIELD_ORIG_Y + 4, FIELD_ORIG_X + 2 * FIELD_WIDTH + 14);
     refresh();
 
     return !is_buried && board->statistics.total_removed_lines < TARGET_LINE;

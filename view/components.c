@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include "../graphics.h"
+#include "../utils.h"
 
 const char *TEXT_SUCCESS = "SUCCESS!";
 const char *TEXT_FAILURE = "FAILURE...";
@@ -176,6 +177,17 @@ void draw_mino(const Tetrimino *mino, int y, int x, int spin) {
             }
         }
     }
+}
+
+void draw_stats(Board *board, const char *mode_text, int y, int x) {
+    draw_window_frame(y, x, y + 11, x + 24);
+    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+
+    mvprintw(y + 2, x + 3, "* MODE : %s", mode_text);
+    mvprintw(y + 4, x + 3, "* LINES: %d", board->statistics.total_removed_lines);
+    mvprintw(y + 6, x + 3, "* TIME : %02d:%02d",
+             min(board->statistics.elapsed_seconds / 60, 99), board->statistics.elapsed_seconds % 60);
+    mvprintw(y + 8, x + 3, "* SCORE: %d", board->statistics.score);
 }
 
 void send_input(Board *sent, int input_key) {
