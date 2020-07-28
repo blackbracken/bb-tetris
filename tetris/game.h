@@ -46,6 +46,7 @@ typedef struct {
     int ren_count;
     RemovingReward removing_reward;
     bool on_ready_back_to_back, did_back_to_back;
+    bool on_immediately_after_rotating;
 } Board;
 
 void make_board(Board *board);

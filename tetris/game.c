@@ -76,6 +76,8 @@ void make_board(Board *board) {
     board->on_ready_back_to_back = false;
     board->did_back_to_back = false;
 
+    board->on_immediately_after_rotating = false;
+
     try_spawn_mino(board, pop_mino(&board->bag));
 }
 
@@ -206,21 +208,28 @@ bool put_and_try_next(Board *board) {
             if (remove_line_if_completed(board, y_on_field)) removed_lines++;
         }
     }
+    board->statistics.total_removed_lines += removed_lines;
 
-    board->removing_reward = NONE;
-    board->did_back_to_back = false;
+    // count ren
     if (removed_lines == 0) {
         board->ren_count = 0;
     } else {
         board->ren_count++;
     }
 
+    // attach removing rewards
+    board->removing_reward = NONE;
     bool did_back_to_back = removed_lines == 4
-                            || (removed_lines > 0 && board->dropping_mino == &MINO_T && 3 <= filled_corner);
-    if (removed_lines == 4) {
-        board->removing_reward = TETRIS;
-    } else if (board->dropping_mino == &MINO_T && 3 <= filled_corner) {
+                            || (board->on_immediately_after_rotating
+                                && removed_lines > 0
+                                && board->dropping_mino == &MINO_T
+                                && 3 <= filled_corner
+                            );
+    if (did_back_to_back) {
         switch (removed_lines) {
+            case 4:
+                board->removing_reward = TETRIS;
+                break;
             case 3:
                 board->removing_reward = TSPIN_TRIPLE;
                 break;
@@ -234,8 +243,20 @@ bool put_and_try_next(Board *board) {
                 break;
         }
     }
+    bool did_perfect_clear = true;
+    for (int j = 0; j < FIELD_HEIGHT; j++) {
+        for (int i = 0; i < FIELD_WIDTH; i++) {
+            if (board->field[j][i] != AIR) {
+                did_perfect_clear = false;
+            }
+        }
+    }
+    if (did_perfect_clear) {
+        board->removing_reward = PERFECT_CLEAR;
+    }
 
-    // back-to-back
+    // attach back-to-back
+    board->did_back_to_back = false;
     if (removed_lines > 0) {
         if (!did_back_to_back) {
             board->on_ready_back_to_back = false;
@@ -247,21 +268,6 @@ bool put_and_try_next(Board *board) {
             board->on_ready_back_to_back = true;
         }
     }
-
-    bool did_perfect_clear = true;
-    for (int j = 0; j < FIELD_HEIGHT; j++) {
-        for (int i = 0; i < FIELD_WIDTH; i++) {
-            if (board->field[j][i] != AIR) {
-                did_perfect_clear = false;
-            }
-        }
-    }
-
-    if (did_perfect_clear) {
-        board->removing_reward = PERFECT_CLEAR;
-    }
-
-    board->statistics.total_removed_lines += removed_lines;
 
     if (!try_spawn_mino(board, pop_mino(&board->bag))) {
         return false;
@@ -310,11 +316,18 @@ bool try_spawn_mino(Board *board, const Tetrimino *mino) {
 
 void drop_mino_once(Board *board) {
     board->dropping_mino_y++;
+    board->on_immediately_after_rotating = false;
 }
 
-void move_left(Board *board) { board->dropping_mino_x--; }
+void move_left(Board *board) {
+    board->dropping_mino_x--;
+    board->on_immediately_after_rotating = false;
+}
 
-void move_right(Board *board) { board->dropping_mino_x++; }
+void move_right(Board *board) {
+    board->dropping_mino_x++;
+    board->on_immediately_after_rotating = false;
+}
 
 void spin_left(Board *board, int offset_idx) {
     board->dropping_mino_spin = (board->dropping_mino_spin + 3) % 4;
@@ -322,6 +335,8 @@ void spin_left(Board *board, int offset_idx) {
     const SpinOffset *offset = &board->dropping_mino->spin_offsets[board->dropping_mino_spin][offset_idx];
     board->dropping_mino_x -= offset->x;
     board->dropping_mino_y -= offset->y;
+
+    board->on_immediately_after_rotating = true;
 }
 
 void spin_right(Board *board, int offset_idx) {
@@ -330,6 +345,8 @@ void spin_right(Board *board, int offset_idx) {
     board->dropping_mino_y += offset->y;
 
     board->dropping_mino_spin = (board->dropping_mino_spin + 1) % 4;
+
+    board->on_immediately_after_rotating = true;
 }
 
 bool can_move(const Board *board, void (*movement)(Board *)) {
