@@ -1,7 +1,5 @@
 #include "40line.h"
 #include <ncurses.h>
-#include <unistd.h>
-#include <time.h>
 #include <string.h>
 
 #include "../graphics.h"
@@ -10,57 +8,37 @@
 
 const char TARGET_LINE = 40;
 
+bool render_frame_of_40line(Board *board, int frame);
+
 void disp_40line_result(int lines, Statistics *statistics);
 
 void start_40line() {
-    int field_orig_x = WINDOW_WIDTH / 2 - 24;
-    int field_orig_y = 10;
-
-    // prepare the view
-    timeout(DELAY_MILLI_PER_FRAME);
     erase();
     draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
 
     Board board;
     make_board(&board);
+    start_routine(&board, render_frame_of_40line);
 
-    int frame = 1;
-    struct timespec delta_timespec;
-    while (true) {
-        timespec_get(&delta_timespec, TIME_UTC);
-        long milli_start = delta_timespec.tv_nsec / 1000 / 1000;
+    disp_40line_result(TARGET_LINE, &board.statistics);
+}
 
-        bool is_buried = !render(&board, frame);
+bool render_frame_of_40line(Board *board, int frame) {
+    int field_orig_x = WINDOW_WIDTH / 2 - 24;
+    int field_orig_y = 10;
 
-        int level = board.statistics.total_removed_lines / 10 + 1;
-        board.dropping_mass_per_second = level;
+    bool is_buried = !render(board, frame);
 
-        draw_field(&board, field_orig_y, field_orig_x);
-        draw_hold(&board, field_orig_y, field_orig_x - 2 - 6);
-        draw_next(&board, field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
-        draw_rewards(&board, field_orig_y + FIELD_HEIGHT + 1, field_orig_x);
-        refresh();
+    int level = board->statistics.total_removed_lines / 10 + 1;
+    board->dropping_mass_per_second = level;
 
-        if (is_buried || board.statistics.total_removed_lines >= TARGET_LINE) {
-            disp_40line_result(TARGET_LINE, &board.statistics);
-            return;
-        }
+    draw_field(board, field_orig_y, field_orig_x);
+    draw_hold(board, field_orig_y, field_orig_x - 2 - 6);
+    draw_next(board, field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
+    draw_rewards(board, field_orig_y + FIELD_HEIGHT + 1, field_orig_x);
+    refresh();
 
-        int input_key = getch();
-        send_input(&board, input_key);
-
-        if (++frame % (FPS + 1) == 0) frame = 1;
-
-        timespec_get(&delta_timespec, TIME_UTC);
-        long milli_finish = delta_timespec.tv_nsec / 1000 / 1000;
-        if (milli_finish < milli_start) milli_finish += 1000;
-
-        // stabilize fps
-        long milli_delta = DELAY_MILLI_PER_FRAME - (milli_finish - milli_start);
-        if (input_key != ERR && milli_delta > 0) {
-            usleep(milli_delta * 1000);
-        }
-    }
+    return !is_buried && board->statistics.total_removed_lines < TARGET_LINE;
 }
 
 void disp_40line_result(int lines, Statistics *statistics) {

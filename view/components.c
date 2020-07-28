@@ -1,7 +1,9 @@
 #include "components.h"
 
 #include <curses.h>
+#include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include "../graphics.h"
 
 const char *TEXT_SUCCESS = "SUCCESS!";
@@ -10,6 +12,34 @@ const char *TEXT_RETURN = "PRESS SPACE KEY TO RETURN MENU";
 
 const char *TEXT_HOLD = "HOLD";
 const char *TEXT_NEXT = "NEXT";
+
+void start_routine(Board *board, bool (*routine)(Board *, int)) {
+    timeout(DELAY_MILLI_PER_FRAME);
+
+    int frame = 1;
+    struct timespec delta_timespec;
+    while (true) {
+        timespec_get(&delta_timespec, TIME_UTC);
+        long milli_start = delta_timespec.tv_nsec / 1000 / 1000;
+
+        if (!routine(board, frame)) return;
+
+        int input_key = getch();
+        send_input(board, input_key);
+
+        if (++frame % (FPS + 1) == 0) frame = 1;
+
+        timespec_get(&delta_timespec, TIME_UTC);
+        long milli_finish = delta_timespec.tv_nsec / 1000 / 1000;
+        if (milli_finish < milli_start) milli_finish += 1000;
+
+        // stabilize fps
+        long milli_delta = DELAY_MILLI_PER_FRAME - (milli_finish - milli_start);
+        if (input_key != ERR && milli_delta > 0) {
+            usleep(milli_delta * 1000);
+        }
+    }
+}
 
 void draw_field(const Board *board, int y, int x) {
     attrset(COLOR_PAIR(COLOR_ID_FIELD));
