@@ -7,7 +7,9 @@
 
 #include "graphics.h"
 #include "view/title.h"
+#include "view/40line.h"
 #include "view/marathon.h"
+#include "view/ultra.h"
 
 int main() {
     WINDOW *window = initscr();
@@ -23,11 +25,14 @@ int main() {
         MenuDestination dest = disp_menu();
 
         switch (dest) {
-            case DEST_MARATHON_40:
-                start_marathon(40);
+            case DEST_40LINE:
+                start_40line();
                 break;
-            case DEST_MARATHON_150:
-                start_marathon(150);
+            case DEST_MARATHON:
+                start_marathon();
+                break;
+            case DEST_ULTRA:
+                start_ultra();
                 break;
             case DEST_EXIT:
                 endwin();

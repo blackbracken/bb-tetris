@@ -4,6 +4,10 @@
 #include <string.h>
 #include "../graphics.h"
 
+const char *TEXT_SUCCESS = "SUCCESS!";
+const char *TEXT_FAILURE = "FAILURE...";
+const char *TEXT_RETURN = "PRESS SPACE KEY TO RETURN MENU";
+
 const char *TEXT_HOLD = "HOLD";
 const char *TEXT_NEXT = "NEXT";
 

@@ -2,8 +2,9 @@
 #define BBTETRIS_TITLE_H
 
 typedef enum {
-    DEST_MARATHON_40,
-    DEST_MARATHON_150,
+    DEST_40LINE,
+    DEST_MARATHON,
+    DEST_ULTRA,
     DEST_RANKING,
     DEST_HELP,
     DEST_EXIT,

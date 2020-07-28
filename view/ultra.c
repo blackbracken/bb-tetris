@@ -1,4 +1,4 @@
-#include "marathon.h"
+#include "ultra.h"
 
 #include <ncurses.h>
 #include <unistd.h>
@@ -8,9 +8,9 @@
 #include "../tetris/game.h"
 #include "components.h"
 
-const int TARGET_LINES = 150;
+const int TIMER_SECONDS = 3 * 60;
 
-void start_marathon() {
+void start_ultra() {
     int field_orig_x = WINDOW_WIDTH / 2 - 24;
     int field_orig_y = 10;
 
@@ -39,8 +39,8 @@ void start_marathon() {
         draw_rewards(&board, field_orig_y + FIELD_HEIGHT + 1, field_orig_x);
         refresh();
 
-        if (is_buried || board.statistics.total_removed_lines >= TARGET_LINES) {
-            // TODO: disp result
+        if (is_buried || board.statistics.elapsed_seconds >= TIMER_SECONDS) {
+            // TODO: show result
             return;
         }
 

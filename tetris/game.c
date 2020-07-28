@@ -177,7 +177,7 @@ void drop_hardly(Board *board) {
 bool put_and_try_next(Board *board) {
     if (can_move(board, drop_mino_once)) return true;
 
-    int removed_lines = 0;
+    int removed_lines_count = 0;
     MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
 
     int filled_corner = 0;
@@ -205,13 +205,13 @@ bool put_and_try_next(Board *board) {
         } else {
             board->field[y_on_field][x_on_field] = board->dropping_mino->color;
 
-            if (remove_line_if_completed(board, y_on_field)) removed_lines++;
+            if (remove_line_if_completed(board, y_on_field)) removed_lines_count++;
         }
     }
-    board->statistics.total_removed_lines += removed_lines;
+    board->statistics.total_removed_lines += removed_lines_count;
 
     // count ren
-    if (removed_lines == 0) {
+    if (removed_lines_count == 0) {
         board->ren_count = 0;
     } else {
         board->ren_count++;
@@ -219,14 +219,14 @@ bool put_and_try_next(Board *board) {
 
     // attach removing rewards
     board->removing_reward = NONE;
-    bool did_back_to_back = removed_lines == 4
+    bool did_back_to_back = removed_lines_count == 4
                             || (board->on_immediately_after_rotating
-                                && removed_lines > 0
+                                && removed_lines_count > 0
                                 && board->dropping_mino == &MINO_T
                                 && 3 <= filled_corner
                             );
     if (did_back_to_back) {
-        switch (removed_lines) {
+        switch (removed_lines_count) {
             case 4:
                 board->removing_reward = TETRIS;
                 break;
@@ -257,7 +257,7 @@ bool put_and_try_next(Board *board) {
 
     // attach back-to-back
     board->did_back_to_back = false;
-    if (removed_lines > 0) {
+    if (removed_lines_count > 0) {
         if (!did_back_to_back) {
             board->on_ready_back_to_back = false;
         } else {
