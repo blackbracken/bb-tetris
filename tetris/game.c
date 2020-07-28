@@ -175,9 +175,8 @@ void drop_hardly(Board *board) {
 bool put_and_try_next(Board *board) {
     if (can_move(board, drop_mino_once)) return true;
 
-    MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
-
     int removed_lines = 0;
+    MinoLocation locations[BLOCK_AMOUNT_IN_MINO];
 
     int filled_corner = 0;
     for (int j = -1; j <= 1; j += 2) {
@@ -193,6 +192,7 @@ bool put_and_try_next(Board *board) {
         }
     }
 
+    // remove lines
     calc_dropping_mino_locations_on_field(board, locations);
     for (int i = 0; i < BLOCK_AMOUNT_IN_MINO; i++) {
         int x_on_field = locations[i].x;
@@ -207,12 +207,12 @@ bool put_and_try_next(Board *board) {
         }
     }
 
+    board->removing_reward = NONE;
+    board->did_back_to_back = false;
     if (removed_lines == 0) {
         board->ren_count = 0;
     } else {
-        board->removing_reward = NONE;
         board->ren_count++;
-        board->did_back_to_back = false;
     }
 
     bool did_back_to_back = removed_lines == 4
@@ -235,6 +235,7 @@ bool put_and_try_next(Board *board) {
         }
     }
 
+    // back-to-back
     if (removed_lines > 0) {
         if (!did_back_to_back) {
             board->on_ready_back_to_back = false;
