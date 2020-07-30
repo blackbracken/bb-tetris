@@ -6,11 +6,12 @@
 #include <time.h>
 
 #include "graphics.h"
+#include "record.h"
 #include "view/title.h"
 #include "view/40line.h"
 #include "view/marathon.h"
 #include "view/ultra.h"
-#include "ranking.h"
+#include "view/ranking.h"
 
 int main() {
     WINDOW *window = initscr();
@@ -35,6 +36,9 @@ int main() {
                 break;
             case DEST_ULTRA:
                 start_ultra();
+                break;
+            case DEST_RANKING:
+                disp_ranking();
                 break;
             case DEST_EXIT:
                 endwin();

@@ -2,7 +2,7 @@
 #define BBTETRIS_COMPONENTS_H
 
 #include "../tetris/game.h"
-#include "../ranking.h"
+#include "../record.h"
 
 extern const char *TEXT_SUCCESS;
 extern const char *TEXT_FAILURE;

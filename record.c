@@ -1,4 +1,4 @@
-#include "ranking.h"
+#include "record.h"
 
 #include <stdio.h>
 #include <stdlib.h>

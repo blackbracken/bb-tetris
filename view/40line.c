@@ -9,7 +9,8 @@
 #define FIELD_ORIG_X (WINDOW_WIDTH / 2 - 24)
 #define FIELD_ORIG_Y 10
 
-const char TARGET_LINE = 1;
+const char TARGET_LINE = 40;
+
 const char *TEXT_MODE_40LINE = "40LINE";
 
 bool render_frame_of_40line(Board *board, int frame);

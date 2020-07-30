@@ -1,6 +1,6 @@
 #include "components.h"
 
-#include <curses.h>
+#include <ncurses.h>
 #include <unistd.h>
 #include <string.h>
 #include <time.h>

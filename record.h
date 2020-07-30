@@ -1,5 +1,5 @@
-#ifndef BBTETRIS_RANKING_H
-#define BBTETRIS_RANKING_H
+#ifndef BBTETRIS_RECORD_H
+#define BBTETRIS_RECORD_H
 
 #include <stdbool.h>
 
