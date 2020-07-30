@@ -7,7 +7,11 @@
 #include "../graphics.h"
 #include "../utils.h"
 
-const char *TEXT_TITLE = "BB_TETRIS";
+const char *TEXT_TITLE_AA_1 = ".__ .__   .___..___.___..__ ._. __.";
+const char *TEXT_TITLE_AA_2 = "[__)[__)    |  [__   |  [__) | (__ ";
+const char *TEXT_TITLE_AA_3 = "[__)[__)    |  [___  |  |  \\_|_.__)";
+
+const char *TEXT_TITLE_SPLITTER = "+----------------------------------------+";
 
 const char *TEXT_ITEM_40LINE = "PLAY 40LINE";
 const char *TEXT_ITEM_MARATHON = "PLAY MARATHON";
@@ -33,7 +37,13 @@ MenuDestination disp_menu() {
         erase();
         draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
 
-        mvaddstr(8, calc_center_x_of_text(TEXT_TITLE), TEXT_TITLE);
+        attrset(COLOR_PAIR(COLOR_ID_FIELD));
+        mvaddstr(8, calc_center_x_of_text(TEXT_TITLE_AA_1), TEXT_TITLE_AA_1);
+        mvaddstr(9, calc_center_x_of_text(TEXT_TITLE_AA_2), TEXT_TITLE_AA_2);
+        mvaddstr(10, calc_center_x_of_text(TEXT_TITLE_AA_3), TEXT_TITLE_AA_3);
+
+        attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+        mvaddstr(13, calc_center_x_of_text(TEXT_TITLE_SPLITTER), TEXT_TITLE_SPLITTER);
 
         for (int item_idx = 0; item_idx < NUM_OF_DEST; item_idx++) {
             const char *item_text;

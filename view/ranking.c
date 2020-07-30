@@ -6,10 +6,22 @@
 #include "components.h"
 #include "../graphics.h"
 
+const char *TEXT_RANKING_AA_1 = "  _.+._";
+const char *TEXT_RANKING_AA_2 = "(^\\/^\\/^)";
+const char *TEXT_RANKING_AA_3 = " \\@*@*@/   RANKING";
+const char *TEXT_RANKING_AA_4 = " {_____}";
+
 void disp_ranking() {
     erase();
     draw_window_frame(0, 0, WINDOW_HEIGHT, WINDOW_WIDTH);
 
+    attrset(COLOR_PAIR(COLOR_ID_FIELD));
+    mvprintw(4, WINDOW_WIDTH / 2 - (int) strlen(TEXT_RANKING_AA_1) / 2 - 8, TEXT_RANKING_AA_1);
+    mvprintw(5, WINDOW_WIDTH / 2 - (int) strlen(TEXT_RANKING_AA_1) / 2 - 8, TEXT_RANKING_AA_2);
+    mvprintw(6, WINDOW_WIDTH / 2 - (int) strlen(TEXT_RANKING_AA_1) / 2 - 8, TEXT_RANKING_AA_3);
+    mvprintw(7, WINDOW_WIDTH / 2 - (int) strlen(TEXT_RANKING_AA_1) / 2 - 8, TEXT_RANKING_AA_4);
+
+    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
     mvprintw(WINDOW_HEIGHT / 4, WINDOW_WIDTH / 4 * 1 - 3, "40LINE");
     mvprintw(WINDOW_HEIGHT / 4, WINDOW_WIDTH / 4 * 2 - 4, "MARATHON");
     mvprintw(WINDOW_HEIGHT / 4, WINDOW_WIDTH / 4 * 3 - 2, "ULTRA");
