@@ -9,7 +9,7 @@
 #define FIELD_ORIG_X (WINDOW_WIDTH / 2 - 24)
 #define FIELD_ORIG_Y 10
 
-const char TARGET_LINE = 40;
+const char TARGET_LINE = 1;
 const char *TEXT_MODE_40LINE = "40LINE";
 
 bool render_frame_of_40line(Board *board, int frame);
@@ -60,11 +60,16 @@ void disp_40line_result(int lines, Statistics *statistics) {
     }
 
     bool is_succeed = statistics->total_removed_lines >= lines;
+    bool is_new_record = is_succeed && is_new_40line_record(statistics->elapsed_seconds);
 
     char record[64];
     if (is_succeed) {
         attrset(COLOR_PAIR(COLOR_ID_SUCCESS));
-        mvaddstr(start_y + 1, center_x - strlen(TEXT_SUCCESS) / 2, TEXT_SUCCESS);
+        if (is_new_record) {
+            mvaddstr(start_y + 1, center_x - strlen(TEXT_NEW_RECORD) / 2, TEXT_NEW_RECORD);
+        } else {
+            mvaddstr(start_y + 1, center_x - strlen(TEXT_SUCCESS) / 2, TEXT_SUCCESS);
+        }
         sprintf(record, "record: [ %02d:%02d ]", statistics->elapsed_seconds / 60, statistics->elapsed_seconds % 60);
     } else {
         attrset(COLOR_PAIR(COLOR_ID_FAILURE));
@@ -78,5 +83,18 @@ void disp_40line_result(int lines, Statistics *statistics) {
 
     refresh();
 
-    while (getch() != ' ');
+    if (is_new_record) {
+        mvaddstr(end_y - 2, center_x - strlen(TEXT_ENTER_YOUR_NAME) / 2, TEXT_ENTER_YOUR_NAME);
+
+        char name[LENGTH_OF_NAME + 1];
+        set_name_form(name, end_y - 6, center_x - 5);
+
+        TimeRecord rec;
+        strcpy(rec.name, name);
+        rec.seconds = statistics->elapsed_seconds;
+
+        insert_40line_record(&rec);
+    } else {
+        while (getch() != ' ');
+    }
 }

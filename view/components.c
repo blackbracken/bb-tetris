@@ -9,7 +9,9 @@
 
 const char *TEXT_SUCCESS = "SUCCESS!";
 const char *TEXT_FAILURE = "FAILURE...";
+const char *TEXT_NEW_RECORD = "NEW RECORD!";
 const char *TEXT_RETURN = "PRESS SPACE KEY TO RETURN MENU";
+const char *TEXT_ENTER_YOUR_NAME = "ENTER YOUR NAME AND PRESS SPACE KEY";
 
 const char *TEXT_HOLD = "HOLD";
 const char *TEXT_NEXT = "NEXT";
@@ -188,6 +190,31 @@ void draw_stats(Board *board, const char *mode_text, int y, int x) {
     mvprintw(y + 6, x + 3, "* TIME : %02d:%02d",
              min(board->statistics.elapsed_seconds / 60, 99), board->statistics.elapsed_seconds % 60);
     mvprintw(y + 8, x + 3, "* SCORE: %d", board->statistics.score);
+}
+
+void set_name_form(char name[LENGTH_OF_NAME + 1], int y, int x) {
+    sprintf(name, "");
+    mvprintw(y, x, "NAME: ____");
+
+    while (true) {
+        int input = getch();
+        if (input == ' ' && 0 < strlen(name)) {
+            return;
+        }
+
+        if (input == KEY_BACKSPACE && 0 < strlen(name)) {
+            name[strlen(name) - 1] = '\0';
+        }
+
+        if (('A' <= input && input <= 'Z' || 'a' <= input && input <= 'z') && LENGTH_OF_NAME >= strlen(name) + 1) {
+            sprintf(name, "%s%c", name, input);
+        }
+
+        mvprintw(y, x, "NAME: ");
+        for (int i = 0; i < LENGTH_OF_NAME; i++) {
+            mvaddch(y, x + 6 + i, i < strlen(name) ? name[i] : '_');
+        }
+    }
 }
 
 void send_input(Board *sent, int input_key) {

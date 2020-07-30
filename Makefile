@@ -7,6 +7,7 @@ build:
 		view/title.c view/title.h \
 		view/marathon.c view/marathon.h \
 		utils.h \
+		ranking.c ranking.h \
 		tetris/game.c tetris/game.h \
 		tetris/tetrimino.c tetris/tetrimino.h \
 		view/components.c view/components.h \

@@ -8,6 +8,8 @@ typedef enum {
     DEST_RANKING,
     DEST_HELP,
     DEST_EXIT,
+
+    NUM_OF_DEST,
 } MenuDestination;
 
 MenuDestination disp_menu();

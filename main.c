@@ -10,10 +10,12 @@
 #include "view/40line.h"
 #include "view/marathon.h"
 #include "view/ultra.h"
+#include "ranking.h"
 
 int main() {
     WINDOW *window = initscr();
     init_curses();
+    init_ranking();
     srand(time(NULL));
 
     if (wresize(window, WINDOW_HEIGHT, WINDOW_WIDTH) == ERR) {

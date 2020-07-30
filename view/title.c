@@ -26,7 +26,7 @@ const char *DESCRIPTION_ITEM_EXIT = "Exit the game.";
 int calc_center_x_of_text(const char *text);
 
 MenuDestination disp_menu() {
-    MenuDestination selected = DEST_40LINE;
+    int selected = DEST_40LINE;
 
     while (true) {
         timeout(-1);
@@ -35,7 +35,7 @@ MenuDestination disp_menu() {
 
         mvaddstr(8, calc_center_x_of_text(TEXT_TITLE), TEXT_TITLE);
 
-        for (int item_idx = 0; item_idx <= (DEST_EXIT - DEST_40LINE); item_idx++) {
+        for (int item_idx = 0; item_idx < NUM_OF_DEST; item_idx++) {
             const char *item_text;
 
             switch (item_idx) {
@@ -111,7 +111,7 @@ MenuDestination disp_menu() {
         switch (inputKey) {
             case ' ':
             case KEY_ENTER:
-                return selected;
+                return (MenuDestination) selected;
             case 'w':
             case KEY_UP:
                 selected = max(selected - 1, DEST_40LINE);

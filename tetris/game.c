@@ -246,7 +246,7 @@ bool put_and_try_next(Board *board) {
         }
     }
 
-    // give score and removing rewards
+    // give score and rewards
     board->removing_reward = NONE;
     if (filled_back_to_back_cond) {
         int back_to_back_bonus_mag = board->did_back_to_back ? 2 : 1;
