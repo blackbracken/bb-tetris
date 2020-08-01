@@ -1,6 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-msc51-cpp"
-
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>
@@ -48,5 +45,3 @@ int main() {
         }
     }
 }
-
-#pragma clang diagnostic push
