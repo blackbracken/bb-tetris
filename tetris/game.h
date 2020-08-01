@@ -2,6 +2,7 @@
 #define BBTETRIS_GAME_H
 
 #include <stdbool.h>
+
 #include "tetrimino.h"
 
 #define FIELD_WIDTH 10

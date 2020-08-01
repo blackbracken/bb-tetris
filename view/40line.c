@@ -1,9 +1,11 @@
 #include "40line.h"
+
 #include <ncurses.h>
 #include <string.h>
 
 #include "../graphics.h"
 #include "../tetris/game.h"
+
 #include "components.h"
 
 const char *TEXT_MODE_40LINE = "40LINE";

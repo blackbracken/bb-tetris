@@ -32,4 +32,5 @@ extern const Tetrimino MINO_Z;
 extern const Tetrimino MINO_L;
 extern const Tetrimino MINO_J;
 extern const Tetrimino MINO_I;
+
 #endif
