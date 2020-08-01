@@ -6,7 +6,7 @@
 #define SIZE_OF_MINO_BAG 14
 
 const int FPS = 30;
-const int DELAY_MILLI_PER_FRAME = 1000 / FPS;
+const int DELAY_MILLI_PER_FRAME = 33; // 1000 / FPS
 
 const int BLOCK_AMOUNT_IN_MINO = 4;
 
