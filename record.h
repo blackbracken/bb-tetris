@@ -38,4 +38,10 @@ bool is_new_marathon_record(int score);
 
 void insert_marathon_record(const ScoreRecord *rec);
 
+void get_ultra_records(ScoreRecord records[MAX_RECORDS]);
+
+bool is_new_ultra_records(int score);
+
+void insert_ultra_record(const ScoreRecord *rec);
+
 #endif

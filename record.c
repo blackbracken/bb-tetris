@@ -7,6 +7,7 @@
 typedef enum {
     REC_40LINE,
     REC_MARATHON,
+    REC_ULTRA,
 
     NUM_OF_REC_KIND,
 } Record;
@@ -31,15 +32,17 @@ void init_ranking() {
     bool should_initialize = file == NULL;
     if (should_initialize) {
         file = fopen(LOG_FILE_NAME, "w");
-        fputs("//\n", file);
+        fputs("///\n", file);
     }
     fclose(file);
 
     if (should_initialize) {
-        TimeRecord sample_40line_rec = {.name = "SMP", .seconds=120};
+        TimeRecord sample_40line_rec = {.name = "SMPL", .seconds=120};
         insert_40line_record(&sample_40line_rec);
-        ScoreRecord sample_marathon_rec = {.name="SMP", .score=25000};
+        ScoreRecord sample_marathon_rec = {.name="SMPL", .score=25000};
         insert_marathon_record(&sample_marathon_rec);
+        ScoreRecord sample_ultra_rec = {.name="SMPL", .score=10000};
+        insert_marathon_record(&sample_ultra_rec);
     }
 }
 
@@ -113,6 +116,42 @@ void insert_marathon_record(const ScoreRecord *rec) {
     }
 
     write_raw_records(raw_text, REC_MARATHON);
+}
+
+void get_ultra_records(ScoreRecord records[MAX_RECORDS]) {
+    char raw_records[LOG_SIZE / NUM_OF_REC_KIND];
+    read_raw_records(raw_records, REC_ULTRA);
+
+    records[0] = to_score_record(strtok(raw_records, ","));
+    for (int i = 1; i < MAX_RECORDS; i++) {
+        records[i] = to_score_record(strtok(NULL, ","));
+    }
+    qsort(records, MAX_RECORDS, sizeof(ScoreRecord), compare_score_record);
+}
+
+bool is_new_ultra_records(int score) {
+    ScoreRecord records[MAX_RECORDS];
+    get_ultra_records(records);
+
+    return records[MAX_RECORDS - 1].score < score;
+}
+
+void insert_ultra_record(const ScoreRecord *rec) {
+    ScoreRecord records[MAX_RECORDS + 1];
+    get_ultra_records(records);
+
+    records[MAX_RECORDS] = *rec;
+    qsort(records, MAX_RECORDS + 1, sizeof(ScoreRecord), compare_score_record);
+
+    char raw_text[LOG_SIZE / NUM_OF_REC_KIND];
+    memset(raw_text, '\0', LOG_SIZE / NUM_OF_REC_KIND);
+    for (int i = 0; i < MAX_RECORDS; i++) {
+        char raw_rec[32];
+        sprintf(raw_rec, "%d=%s,", records[i].score, records[i].name);
+        strcat(raw_text, raw_rec);
+    }
+
+    write_raw_records(raw_text, REC_ULTRA);
 }
 
 void read_raw_records(char *raw_text, Record rec) {

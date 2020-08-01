@@ -45,9 +45,21 @@ void disp_ranking() {
         if (records_marathon[i].score == SCORE_RECORD_UNDEFINED) continue;
 
         mvprintw(WINDOW_HEIGHT / 4 + 2 + 2 * i, WINDOW_WIDTH / 2 - 2 - (strlen(records_marathon[i].name) + 1),
-                 "%s - %7d",
+                 "%s - %d",
                  records_marathon[i].name,
                  records_marathon[i].score
+        );
+    }
+
+    ScoreRecord records_ultra[MAX_RECORDS];
+    get_ultra_records(records_ultra);
+    for (int i = 0; i < MAX_RECORDS; i++) {
+        if (records_ultra[i].score == SCORE_RECORD_UNDEFINED) continue;
+
+        mvprintw(WINDOW_HEIGHT / 4 + 2 + 2 * i, WINDOW_WIDTH / 4 * 3 - 2 - (strlen(records_ultra[i].name) + 1),
+                 "%s - %d",
+                 records_ultra[i].name,
+                 records_ultra[i].score
         );
     }
 
