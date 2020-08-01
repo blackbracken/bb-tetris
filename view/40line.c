@@ -6,16 +6,12 @@
 #include "../tetris/game.h"
 #include "components.h"
 
-#define FIELD_ORIG_X (WINDOW_WIDTH / 2 - 24)
-#define FIELD_ORIG_Y 10
-
-const char TARGET_LINE = 40;
-
 const char *TEXT_MODE_40LINE = "40LINE";
+const int TARGET_LINE_40LINE = 40;
 
 bool render_frame_of_40line(Board *board, int frame);
 
-void disp_40line_result(int lines, Statistics *statistics);
+void record_40line(char *name, Statistics *statistics);
 
 void start_40line() {
     erase();
@@ -23,79 +19,42 @@ void start_40line() {
 
     Board board;
     make_board(&board);
+
     start_routine(&board, render_frame_of_40line);
 
-    disp_40line_result(TARGET_LINE, &board.statistics);
+    GameResult result;
+    char record[32];
+    if (board.statistics.total_removed_lines >= TARGET_LINE_40LINE) {
+        result = is_new_40line_record(board.statistics.elapsed_seconds) ? RES_NEW_RECORD : RES_SUCCESS;
+        sprintf(record, "%02d:%02d", board.statistics.elapsed_seconds / 60, board.statistics.elapsed_seconds % 60);
+    } else {
+        result = RES_FAILURE;
+        sprintf(record, "%d lines", board.statistics.total_removed_lines);
+    }
+
+    show_result_and_wait(result, record, &board.statistics, record_40line);
 }
 
 bool render_frame_of_40line(Board *board, int frame) {
+    int field_orig_x = WINDOW_WIDTH / 2 - 24;
+    int field_orig_y = 10;
+
     bool is_buried = !render(board, frame);
 
-    int level = board->statistics.total_removed_lines / 10 + 1;
-    board->dropping_mass_per_second = level;
-
-    draw_field(board, FIELD_ORIG_Y, FIELD_ORIG_X);
-    draw_hold(board, FIELD_ORIG_Y, FIELD_ORIG_X - 2 - 6);
-    draw_next(board, FIELD_ORIG_Y, FIELD_ORIG_X + 2 * FIELD_WIDTH + 2 + 4);
-    draw_rewards(board, FIELD_ORIG_Y + FIELD_HEIGHT + 1, FIELD_ORIG_X);
-    draw_stats(board, TEXT_MODE_40LINE, FIELD_ORIG_Y + 4, FIELD_ORIG_X + 2 * FIELD_WIDTH + 16);
+    draw_field(board, field_orig_y, field_orig_x);
+    draw_hold(board, field_orig_y, field_orig_x - 2 - 6);
+    draw_next(board, field_orig_y, field_orig_x + 2 * FIELD_WIDTH + 2 + 4);
+    draw_rewards(board, field_orig_y + FIELD_HEIGHT + 1, field_orig_x);
+    draw_stats(board, TEXT_MODE_40LINE, field_orig_y + 4, field_orig_x + 2 * FIELD_WIDTH + 16);
     refresh();
 
-    return !is_buried && board->statistics.total_removed_lines < TARGET_LINE;
+    return !is_buried && board->statistics.total_removed_lines < TARGET_LINE_40LINE;
 }
 
-void disp_40line_result(int lines, Statistics *statistics) {
-    int start_x = WINDOW_WIDTH / 4;
-    int start_y = WINDOW_HEIGHT / 3;
-    int end_x = WINDOW_WIDTH / 4 * 3;
-    int end_y = WINDOW_HEIGHT / 3 * 2;
-    int center_x = end_x / 2 + start_x / 2;
+void record_40line(char *name, Statistics *statistics) {
+    TimeRecord rec;
+    strcpy(rec.name, name);
+    rec.seconds = statistics->elapsed_seconds;
 
-    draw_window_frame(start_y - 1, start_x - 2, end_y + 1, end_x + 2);
-
-    attrset(COLOR_PAIR(COLOR_ID_NONE));
-    for (int j = start_y; j < end_y; j++) {
-        for (int i = start_x; i < end_x; i++) {
-            mvaddch(j, i, ' ');
-        }
-    }
-
-    bool is_succeed = statistics->total_removed_lines >= lines;
-    bool is_new_record = is_succeed && is_new_40line_record(statistics->elapsed_seconds);
-
-    char record[64];
-    if (is_succeed) {
-        attrset(COLOR_PAIR(COLOR_ID_SUCCESS));
-        if (is_new_record) {
-            mvaddstr(start_y + 1, center_x - strlen(TEXT_NEW_RECORD) / 2, TEXT_NEW_RECORD);
-        } else {
-            mvaddstr(start_y + 1, center_x - strlen(TEXT_SUCCESS) / 2, TEXT_SUCCESS);
-        }
-        sprintf(record, "record: [ %02d:%02d ]", statistics->elapsed_seconds / 60, statistics->elapsed_seconds % 60);
-    } else {
-        attrset(COLOR_PAIR(COLOR_ID_FAILURE));
-        mvaddstr(start_y + 1, center_x - strlen(TEXT_FAILURE) / 2, TEXT_FAILURE);
-        sprintf(record, "cleared: %d lines", statistics->total_removed_lines);
-    }
-
-    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
-    mvaddstr(start_y + 3, center_x - strlen(record) / 2, record);
-    mvaddstr(end_y - 2, center_x - strlen(TEXT_RETURN) / 2, TEXT_RETURN);
-
-    refresh();
-
-    if (is_new_record) {
-        mvaddstr(end_y - 2, center_x - strlen(TEXT_ENTER_YOUR_NAME) / 2, TEXT_ENTER_YOUR_NAME);
-
-        char name[LENGTH_OF_NAME + 1];
-        set_name_form(name, end_y - 6, center_x - 5);
-
-        TimeRecord rec;
-        strcpy(rec.name, name);
-        rec.seconds = statistics->elapsed_seconds;
-
-        insert_40line_record(&rec);
-    } else {
-        while (getch() != ' ');
-    }
+    insert_40line_record(&rec);
 }

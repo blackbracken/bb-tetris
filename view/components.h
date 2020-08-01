@@ -24,7 +24,8 @@ void draw_mino(const Tetrimino *mino, int y, int x, int spin);
 
 void draw_stats(Board *board, const char *mode_text, int y, int x);
 
-void set_name_form(char name[LENGTH_OF_NAME + 1], int y, int x);
+void show_result_and_wait(
+        GameResult result, char *record, Statistics *statistics, void (*recording)(char *, Statistics *));
 
 void send_input(Board *sent, int input_key);
 

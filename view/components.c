@@ -192,28 +192,89 @@ void draw_stats(Board *board, const char *mode_text, int y, int x) {
     mvprintw(y + 8, x + 3, "* SCORE: %d", board->statistics.score);
 }
 
-void set_name_form(char name[LENGTH_OF_NAME + 1], int y, int x) {
-    sprintf(name, "");
-    mvprintw(y, x, "NAME: ____");
+void show_result_and_wait(
+        GameResult result,
+        char *record,
+        Statistics *statistics,
+        void (*recording)(char *, Statistics *)) {
+    int start_x = WINDOW_WIDTH / 4;
+    int start_y = WINDOW_HEIGHT / 3;
+    int end_x = WINDOW_WIDTH / 4 * 3;
+    int end_y = WINDOW_HEIGHT / 3 * 2;
+    int center_x = end_x / 2 + start_x / 2;
 
-    while (true) {
-        int input = getch();
-        if (input == ' ' && 0 < strlen(name)) {
-            return;
+    draw_window_frame(start_y - 1, start_x - 2, end_y + 1, end_x + 2);
+    attrset(COLOR_PAIR(COLOR_ID_NONE));
+    for (int j = start_y; j < end_y; j++) {
+        for (int i = start_x; i < end_x; i++) {
+            mvaddch(j, i, ' ');
+        }
+    }
+
+    const char *result_text;
+    switch (result) {
+        case RES_NEW_RECORD:
+            attrset(COLOR_PAIR(COLOR_ID_SUCCESS));
+            result_text = TEXT_NEW_RECORD;
+            break;
+        case RES_SUCCESS:
+            attrset(COLOR_PAIR(COLOR_ID_SUCCESS));
+            result_text = TEXT_SUCCESS;
+            break;
+        case RES_FAILURE:
+            attrset(COLOR_PAIR(COLOR_ID_FAILURE));
+            result_text = TEXT_FAILURE;
+            break;
+        default:
+            result_text = "unreachable";
+            break;
+    }
+    mvaddstr(start_y + 1, center_x - strlen(result_text) / 2, result_text);
+
+    char record_text[64];
+    sprintf(record_text, "record: %s", record);
+    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+    mvaddstr(start_y + 3, center_x - strlen(record_text) / 2, record_text);
+
+    if (result == RES_NEW_RECORD) {
+        mvaddstr(end_y - 2, center_x - strlen(TEXT_ENTER_YOUR_NAME) / 2, TEXT_ENTER_YOUR_NAME);
+    } else {
+        mvaddstr(end_y - 2, center_x - strlen(TEXT_RETURN) / 2, TEXT_RETURN);
+    }
+
+    refresh();
+
+    if (result != RES_NEW_RECORD) {
+        while (getch() != ' ');
+    } else {
+        char name[LENGTH_OF_NAME + 1];
+        strcpy(name, "");
+        int name_x = center_x - 5;
+        int name_y = end_y - 6;
+
+        mvprintw(name_y, name_x, "NAME: ____");
+
+        while (true) {
+            int input = getch();
+            if (input == ' ' && 0 < strlen(name)) {
+                break;
+            }
+
+            if (input == KEY_BACKSPACE && 0 < strlen(name)) {
+                name[strlen(name) - 1] = '\0';
+            }
+
+            if (('A' <= input && input <= 'Z' || 'a' <= input && input <= 'z') && LENGTH_OF_NAME >= strlen(name) + 1) {
+                sprintf(name, "%s%c", name, input);
+            }
+
+            mvprintw(name_y, name_x, "NAME: ");
+            for (int i = 0; i < LENGTH_OF_NAME; i++) {
+                mvaddch(name_y, name_x + 6 + i, i < strlen(name) ? name[i] : '_');
+            }
         }
 
-        if (input == KEY_BACKSPACE && 0 < strlen(name)) {
-            name[strlen(name) - 1] = '\0';
-        }
-
-        if (('A' <= input && input <= 'Z' || 'a' <= input && input <= 'z') && LENGTH_OF_NAME >= strlen(name) + 1) {
-            sprintf(name, "%s%c", name, input);
-        }
-
-        mvprintw(y, x, "NAME: ");
-        for (int i = 0; i < LENGTH_OF_NAME; i++) {
-            mvaddch(y, x + 6 + i, i < strlen(name) ? name[i] : '_');
-        }
+        recording(name, statistics);
     }
 }
 
