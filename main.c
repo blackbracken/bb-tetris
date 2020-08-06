@@ -10,6 +10,7 @@
 #include "view/marathon.h"
 #include "view/ultra.h"
 #include "view/ranking.h"
+#include "view/help.h"
 
 int main() {
     WINDOW *window = initscr();
@@ -37,6 +38,9 @@ int main() {
                 break;
             case DEST_RANKING:
                 disp_ranking();
+                break;
+            case DEST_HELP:
+                disp_help();
                 break;
             case DEST_EXIT:
                 endwin();

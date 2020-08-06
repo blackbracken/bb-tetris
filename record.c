@@ -42,7 +42,7 @@ void init_ranking() {
         ScoreRecord sample_marathon_rec = {.name="SMPL", .score=25000};
         insert_marathon_record(&sample_marathon_rec);
         ScoreRecord sample_ultra_rec = {.name="SMPL", .score=10000};
-        insert_marathon_record(&sample_ultra_rec);
+        insert_ultra_record(&sample_ultra_rec);
     }
 }
 
