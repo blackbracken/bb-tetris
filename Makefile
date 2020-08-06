@@ -2,10 +2,10 @@ CC := gcc
 CFLAGS := -std=c11 -g -Wall -Wextra
 LDLIBS := -lncurses -lm
 
-bbtetris: main.c record.o tetrimino.o tetris.o title.o components.o 40line.o marathon.o ultra.o ranking.o graphics.c
+bbtetris: main.c record.o tetrimino.o tetris.o title.o components.o 40line.o marathon.o ultra.o ranking.o help.o graphics.c
 	$(CC) $(CFLAGS) -o bbtetris $^ $(LDLIBS)
 
-main.c: view/40line.h view/marathon.h view/ultra.h view/ranking.h
+main.c: view/40line.h view/marathon.h view/ultra.h view/ranking.h view/help.h
 
 record.o: record.h
 	$(CC) -c $*.c
@@ -36,7 +36,10 @@ ultra.o: view/ultra.h
 ranking.o: view/ranking.h
 	$(CC) -c view/ranking.c
 
-title.o 40line.o marathon.o ultra.o ranking.o: view/components.h graphics.h
+help.o: view/help.h
+	$(CC) -c view/help.c
+
+title.o 40line.o marathon.o ultra.o ranking.o help.o: view/components.h graphics.h
 40line.o marathon.o ultra.o ranking.o: record.h
 
 clean:
