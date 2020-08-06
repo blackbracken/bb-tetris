@@ -10,7 +10,7 @@ extern const char *TEXT_NEW_RECORD;
 extern const char *TEXT_RETURN;
 extern const char *TEXT_ENTER_YOUR_NAME;
 
-void start_routine(Board *board, bool (*routine)(Board *, int));
+void repeat_routine_regularly(Board *board, bool (*routine)(Board *, int));
 
 void draw_field(const Board *board, int y, int x);
 

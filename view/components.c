@@ -17,7 +17,7 @@ const char *TEXT_ENTER_YOUR_NAME = "ENTER YOUR NAME AND PRESS SPACE KEY";
 const char *TEXT_HOLD = "HOLD";
 const char *TEXT_NEXT = "NEXT";
 
-void start_routine(Board *board, bool (*routine)(Board *, int)) {
+void repeat_routine_regularly(Board *board, bool (*routine)(Board *, int)) {
     timeout(DELAY_MILLI_PER_FRAME);
 
     int frame = 1;

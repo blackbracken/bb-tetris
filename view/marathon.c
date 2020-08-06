@@ -25,7 +25,7 @@ void start_marathon() {
     Board board;
     make_board(&board);
 
-    start_routine(&board, render_frame_of_marathon);
+    repeat_routine_regularly(&board, render_frame_of_marathon);
 
     GameResult result;
     char record[32];

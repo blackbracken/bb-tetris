@@ -67,7 +67,7 @@ void disp_ranking() {
     draw_mino(&MINO_J, WINDOW_HEIGHT - 12, WINDOW_WIDTH / 2 - 11, 0);
     draw_mino(&MINO_S, WINDOW_HEIGHT - 12 + 1, WINDOW_WIDTH / 2 + 9, 0);
 
-    attrset(COLOR_PAIR(COLOR_ID_PLAIN));
+    attrset(COLOR_PAIR(COLOR_ID_FIELD));
     mvprintw(WINDOW_HEIGHT - 4, WINDOW_WIDTH / 2 - strlen(TEXT_RETURN) / 2, TEXT_RETURN);
 
     refresh();

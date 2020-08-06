@@ -22,7 +22,7 @@ void start_40line() {
     Board board;
     make_board(&board);
 
-    start_routine(&board, render_frame_of_40line);
+    repeat_routine_regularly(&board, render_frame_of_40line);
 
     GameResult result;
     char record[32];

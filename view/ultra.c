@@ -21,7 +21,7 @@ void start_ultra() {
     Board board;
     make_board(&board);
 
-    start_routine(&board, render_frame_of_ultra);
+    repeat_routine_regularly(&board, render_frame_of_ultra);
 
     GameResult result;
     char record[32];
